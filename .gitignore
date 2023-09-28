@@ -1,0 +1,5 @@
+/CC2530DB/*.dep
+/CC2530DB/*.tmp
+/CC2530DB/settings
+/CC2530DB/CoordinatorEB
+/CC2530DB/EndDeviceEB
