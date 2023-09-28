@@ -2,29 +2,29 @@
 
 <workspace>
   <project>
-    <path>$WS_DIR$\SampleSwitch.ewp</path>
+    <path>$WS_DIR$\zigmo.ewp</path>
   </project>
   <batchBuild>
     <batchDefinition>
       <name>ALL</name>
       <member>
-        <project>SampleSwitch</project>
+        <project>zigmo</project>
         <configuration>CoordinatorEB</configuration>
       </member>
       <member>
-        <project>SampleSwitch</project>
+        <project>zigmo</project>
         <configuration>RouterEB</configuration>
       </member>
       <member>
-        <project>SampleSwitch</project>
+        <project>zigmo</project>
         <configuration>EndDeviceEB</configuration>
       </member>
       <member>
-        <project>SampleSwitch</project>
+        <project>zigmo</project>
         <configuration>EndDeviceEB - OTAClient</configuration>
       </member>
       <member>
-        <project>SampleSwitch</project>
+        <project>zigmo</project>
         <configuration>RouterEB - OTAClient</configuration>
       </member>
     </batchDefinition>

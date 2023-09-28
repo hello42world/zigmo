@@ -792,7 +792,7 @@
                 </option>
                 <option>
                     <name>OutputFile</name>
-                    <state>SampleSwitch.d51</state>
+                    <state>zigmo.d51</state>
                 </option>
                 <option>
                     <name>OutputFormat</name>
@@ -990,7 +990,7 @@
                 </option>
                 <option>
                     <name>ExtraOutputFile</name>
-                    <state>SampleSwitch.sim</state>
+                    <state>zigmo.sim</state>
                 </option>
                 <option>
                     <name>ExtraOutputFormat</name>
@@ -1950,7 +1950,7 @@
                 </option>
                 <option>
                     <name>OutputFile</name>
-                    <state>SampleSwitch.d51</state>
+                    <state>zigmo.d51</state>
                 </option>
                 <option>
                     <name>OutputFormat</name>
@@ -2148,7 +2148,7 @@
                 </option>
                 <option>
                     <name>ExtraOutputFile</name>
-                    <state>SampleSwitch.sim</state>
+                    <state>zigmo.sim</state>
                 </option>
                 <option>
                     <name>ExtraOutputFormat</name>
@@ -3110,7 +3110,7 @@
                 </option>
                 <option>
                     <name>OutputFile</name>
-                    <state>SampleSwitch.hex</state>
+                    <state>zigmo.hex</state>
                 </option>
                 <option>
                     <name>OutputFormat</name>
@@ -3308,7 +3308,7 @@
                 </option>
                 <option>
                     <name>ExtraOutputFile</name>
-                    <state>SampleSwitch.sim</state>
+                    <state>zigmo.sim</state>
                 </option>
                 <option>
                     <name>ExtraOutputFormat</name>
@@ -4272,7 +4272,7 @@
                 </option>
                 <option>
                     <name>OutputFile</name>
-                    <state>SampleSwitch.d51</state>
+                    <state>zigmo.d51</state>
                 </option>
                 <option>
                     <name>OutputFormat</name>
@@ -5432,7 +5432,7 @@
                 </option>
                 <option>
                     <name>OutputFile</name>
-                    <state>SampleSwitch.a51</state>
+                    <state>zigmo.a51</state>
                 </option>
                 <option>
                     <name>OutputFormat</name>
@@ -5802,7 +5802,7 @@
     <group>
         <name>App</name>
         <file>
-            <name>$PROJ_DIR$\..\Source\OSAL_SampleSw.c</name>
+            <name>$PROJ_DIR$\..\Source\OSAL_zigmo.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\Source\zcl_sampleapps_ui.c</name>
@@ -5811,13 +5811,13 @@
             <name>$PROJ_DIR$\..\..\Source\zcl_sampleapps_ui.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\Source\zcl_samplesw.c</name>
+            <name>$PROJ_DIR$\..\Source\zcl_zigmo.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\Source\zcl_samplesw.h</name>
+            <name>$PROJ_DIR$\..\Source\zcl_zigmo.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\Source\zcl_samplesw_data.c</name>
+            <name>$PROJ_DIR$\..\Source\zcl_zigmo_data.c</name>
         </file>
     </group>
     <group>
