@@ -1,5 +1,5 @@
 /**************************************************************************************************
-  Filename:       zcl_samplesw.h
+  Filename:       zcl_zigmo.h
   Revised:        $Date: 2015-08-19 17:11:00 -0700 (Wed, 19 Aug 2015) $
   Revision:       $Revision: 44460 $
 
@@ -39,8 +39,8 @@
   contact Texas Instruments Incorporated at www.TI.com.
 **************************************************************************************************/
 
-#ifndef ZCL_SAMPLESW_H
-#define ZCL_SAMPLESW_H
+#ifndef ZCL_ZIGMO_H
+#define ZCL_ZIGMO_H
 
 #ifdef __cplusplus
 extern "C"
@@ -55,7 +55,7 @@ extern "C"
 /*********************************************************************
  * CONSTANTS
  */
-#define SAMPLESW_ENDPOINT               8
+#define ZIGMO_ENDPOINT               8
 
 #define LIGHT_OFF                       0x00
 #define LIGHT_ON                        0x01
@@ -79,21 +79,21 @@ extern "C"
 /*********************************************************************
  * VARIABLES
  */
-extern SimpleDescriptionFormat_t zclSampleSw_SimpleDesc;
+extern SimpleDescriptionFormat_t zclZigmo_SimpleDesc;
 
-extern SimpleDescriptionFormat_t zclSampleSw9_SimpleDesc;
+extern SimpleDescriptionFormat_t zclZigmo9_SimpleDesc;
 
-extern CONST zclAttrRec_t zclSampleSw_Attrs[];
+extern CONST zclAttrRec_t zclZigmo_Attrs[];
 
-extern uint8  zclSampleSw_OnOff;
+extern uint8  zclZigmo_OnOff;
 
-extern uint16 zclSampleSw_IdentifyTime;
+extern uint16 zclZigmo_IdentifyTime;
 
-extern uint8 zclSampleSw_OnOffSwitchType;
+extern uint8 zclZigmo_OnOffSwitchType;
 
-extern uint8 zclSampleSw_OnOffSwitchActions;
+extern uint8 zclZigmo_OnOffSwitchActions;
 
-extern CONST uint8 zclSampleSw_NumAttributes;
+extern CONST uint8 zclZigmo_NumAttributes;
 
 /*********************************************************************
  * FUNCTIONS
@@ -102,17 +102,17 @@ extern CONST uint8 zclSampleSw_NumAttributes;
  /*
   * Initialization for the task
   */
-extern void zclSampleSw_Init( byte task_id );
+extern void zclZigmo_Init( byte task_id );
 
 /*
  *  Event Process for the task
  */
-extern UINT16 zclSampleSw_event_loop( byte task_id, UINT16 events );
+extern UINT16 zclZigmo_event_loop( byte task_id, UINT16 events );
 
 /*
  *  Reset all writable attributes to their default values.
  */
-extern void zclSampleSw_ResetAttributesToDefaultValues(void); //implemented in zcl_samplesw_data.c
+extern void zclZigmo_ResetAttributesToDefaultValues(void); //implemented in zcl_zigmo_data.c
 
 /*********************************************************************
 *********************************************************************/

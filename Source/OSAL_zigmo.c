@@ -1,5 +1,5 @@
 /**************************************************************************************************
-  Filename:       OSAL_SampleSw.c
+  Filename:       OSAL_Zigmo.c
   Revised:        $Date: 2014-06-03 16:29:28 -0700 (Tue, 03 Jun 2014) $
   Revision:       $Revision: 38778 $
 
@@ -78,7 +78,7 @@
 #endif // BDB_TL_TARGET
 #endif // INTER_PAN
 
-#include "zcl_samplesw.h"
+#include "zcl_zigmo.h"
 
 #if (defined OTA_CLIENT) && (OTA_CLIENT == TRUE)
   #include "zcl_ota.h"
@@ -120,7 +120,7 @@ const pTaskEventHandlerFn tasksArr[] = {
   #endif
   zcl_event_loop,
   bdb_event_loop,
-  zclSampleSw_event_loop,
+  zclZigmo_event_loop,
 #if (defined OTA_CLIENT) && (OTA_CLIENT == TRUE)
   zclOTA_event_loop
 #endif
@@ -180,7 +180,7 @@ void osalInitTasks( void )
   #endif
   zcl_Init( taskID++ );
   bdb_Init( taskID++ );
-  zclSampleSw_Init( taskID++ );
+  zclZigmo_Init( taskID++ );
 #if (defined OTA_CLIENT) && (OTA_CLIENT == TRUE)
   zclOTA_Init( taskID );
 #endif
