@@ -1437,7 +1437,7 @@
                 </option>
                 <option>
                     <name>OGChipConfigPath</name>
-                    <state>$TOOLKIT_DIR$\config\devices\Texas Instruments\CC2530F256.i51</state>
+                    <state>C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\8051\bin\..\config\devices\Texas Instruments\CC25xx\3x\CC2530F256.i51</state>
                 </option>
             </data>
         </settings>
@@ -1463,18 +1463,18 @@
                 </option>
                 <option>
                     <name>CCDefines</name>
+                    <state>HAL_LCD=FALSE</state>
                     <state>SECURE=1</state>
                     <state>TC_LINKKEY_JOIN</state>
                     <state>NV_INIT</state>
                     <state>NV_RESTORE</state>
-                    <state>xZTOOL_P1</state>
-                    <state>xMT_TASK</state>
-                    <state>xMT_APP_FUNC</state>
-                    <state>xMT_SYS_FUNC</state>
-                    <state>xMT_ZDO_FUNC</state>
-                    <state>xMT_ZDO_MGMT</state>
-                    <state>xMT_APP_CNF_FUNC</state>
-                    <state>LCD_SUPPORTED=DEBUG</state>
+                    <state>ZTOOL_P1</state>
+                    <state>MT_TASK</state>
+                    <state>MT_APP_FUNC</state>
+                    <state>MT_SYS_FUNC</state>
+                    <state>MT_ZDO_FUNC</state>
+                    <state>MT_ZDO_MGMT</state>
+                    <state>MT_APP_CNF_FUNC</state>
                     <state>MULTICAST_ENABLED=FALSE</state>
                     <state>ZCL_READ</state>
                     <state>ZCL_DISCOVER</state>
@@ -1482,7 +1482,9 @@
                     <state>ZCL_BASIC</state>
                     <state>ZCL_IDENTIFY</state>
                     <state>ZCL_ON_OFF</state>
-                    <state>ZCL_GROUPS</state>
+                    <state>xZCL_GROUPS</state>
+                    <state>xNWK_MAX_DEVICE_LIST=3</state>
+                    <state>MAX_NEIGHBOR_ENTRIES=12</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -5804,9 +5806,6 @@
         <name>App</name>
         <file>
             <name>$PROJ_DIR$\..\Source\OSAL_zigmo.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\Source\zcl_sampleapps_ui.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\Source\zcl_sampleapps_ui.h</name>

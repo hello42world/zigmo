@@ -292,9 +292,9 @@ void zclZigmo_Init( byte task_id )
 
   zdpExternalStateTaskID = zclZigmo_TaskID;
 
-  UI_Init(zclZigmo_TaskID, SAMPLEAPP_LCD_AUTO_UPDATE_EVT, SAMPLEAPP_KEY_AUTO_REPEAT_EVT, &zclZigmo_IdentifyTime, APP_TITLE, &zclZigmo_UiUpdateLcd, zclZigmo_UiStatesMain);
+  // UI_Init(zclZigmo_TaskID, SAMPLEAPP_LCD_AUTO_UPDATE_EVT, SAMPLEAPP_KEY_AUTO_REPEAT_EVT, &zclZigmo_IdentifyTime, APP_TITLE, &zclZigmo_UiUpdateLcd, zclZigmo_UiStatesMain);
 
-  UI_UpdateLcd();
+  // UI_UpdateLcd();
 }
 
 /*********************************************************************
@@ -338,7 +338,7 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
           break;
 
         case ZDO_STATE_CHANGE:
-          UI_DeviceStateUpdated((devStates_t)(MSGpkt->hdr.status));
+          // UI_DeviceStateUpdated((devStates_t)(MSGpkt->hdr.status));
           break;
 
 #if defined (OTA_CLIENT) && (OTA_CLIENT == TRUE)
@@ -369,13 +369,13 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
 
   if ( events & SAMPLEAPP_LCD_AUTO_UPDATE_EVT )
   {
-    UI_UpdateLcd();
+    // UI_UpdateLcd();
     return ( events ^ SAMPLEAPP_LCD_AUTO_UPDATE_EVT );
   }
 
   if ( events & SAMPLEAPP_KEY_AUTO_REPEAT_EVT )
   {
-    UI_MainStateMachine(UI_KEY_AUTO_PRESSED);
+    // UI_MainStateMachine(UI_KEY_AUTO_PRESSED);
     return ( events ^ SAMPLEAPP_KEY_AUTO_REPEAT_EVT );
   }
   // Discard unknown events
@@ -398,7 +398,7 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
  */
 static void zclZigmo_HandleKeys( byte shift, byte keys )
 {
-  UI_MainStateMachine(keys);
+  // UI_MainStateMachine(keys);
 }
 
 
@@ -475,7 +475,7 @@ static void zclZigmo_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbCo
 #endif 
   }
   
-  UI_UpdateComissioningStatus(bdbCommissioningModeMsg);
+  // UI_UpdateComissioningStatus(bdbCommissioningModeMsg);
 }
 
 /*********************************************************************
@@ -493,7 +493,7 @@ static void zclZigmo_BasicResetCB( void )
   zclZigmo_ResetAttributesToDefaultValues();
 
   // update the display
-  UI_UpdateLcd( ); 
+  // UI_UpdateLcd( ); 
 }
 
 /*********************************************************************
