@@ -47,6 +47,7 @@
 #include "ZDConfig.h"
 
 #include "zcl.h"
+#include "zcl_ms.h"
 #include "zcl_general.h"
 #include "zcl_ha.h"
 #include "zcl_poll_control.h"
@@ -95,7 +96,7 @@ const uint16 zclZigmo_clusterRevision_all = 0x0001; //currently all cluster impl
 const uint8 zclZigmo_HWRevision = ZIGMO_HWVERSION;
 const uint8 zclZigmo_ZCLVersion = ZIGMO_ZCLVERSION;
 const uint8 zclZigmo_ManufacturerName[] = { 16, 'T','e','x','a','s','I','n','s','t','r','u','m','e','n','t','s' };
-const uint8 zclZigmo_ModelId[] = { 16, 'T','I','0','0','0','1',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ' };
+const uint8 zclZigmo_ModelId[] = { 16, 'T','I','0','0','0','2',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ' };
 const uint8 zclZigmo_DateCode[] = { 16, '2','0','0','6','0','8','3','1',' ',' ',' ',' ',' ',' ',' ',' ' };
 const uint8 zclZigmo_PowerSource = POWER_SOURCE_MAINS_1_PHASE;
 
@@ -105,6 +106,12 @@ uint8 zclZigmo_DeviceEnable = DEVICE_ENABLED;
 
 // Identify Cluster
 uint16 zclZigmo_IdentifyTime = 0;
+
+// Temperature Sensor Cluster
+int16 zclZigmoHumidity_MeasuredValue;
+const int16 zclZigmoHumidity_MinMeasuredValue = 0; 
+const int16 zclZigmoHumidity_MaxMeasuredValue = 10000;
+
 
 /*********************************************************************
  * ATTRIBUTE DEFINITIONS - Uses REAL cluster IDs
@@ -275,6 +282,45 @@ CONST zclAttrRec_t zclZigmo_Attrs[] =
       ACCESS_CONTROL_READ | ACCESS_CLIENT,
       (void *)&zclZigmo_clusterRevision_all
     }
+  },
+  
+  // *** Relative humidity Cluster *** //
+  {
+    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
+    { // Attribute record
+      ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE,
+      ZCL_DATATYPE_INT16,
+      ACCESS_CONTROL_READ | ACCESS_REPORTABLE,
+      (void *)&zclZigmoHumidity_MeasuredValue
+    }
+  },
+  {
+    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
+    { // Attribute record
+      ATTRID_MS_RELATIVE_HUMIDITY_MIN_MEASURED_VALUE,
+      ZCL_DATATYPE_INT16,
+      ACCESS_CONTROL_READ,
+      (void *)&zclZigmoHumidity_MinMeasuredValue
+    }
+  },
+  {
+    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
+    { // Attribute record
+      ATTRID_MS_RELATIVE_HUMIDITY_MAX_MEASURED_VALUE,
+      ZCL_DATATYPE_INT16,
+      ACCESS_CONTROL_READ,
+      (void *)&zclZigmoHumidity_MaxMeasuredValue
+    }
+  },
+
+  {
+    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
+    {   // Attribute record
+      ATTRID_CLUSTER_REVISION,
+      ZCL_DATATYPE_UINT16,
+      ACCESS_CONTROL_READ,
+      (void *)&zclZigmo_clusterRevision_all
+    }
   }
 };
 
@@ -289,7 +335,8 @@ const cId_t zclZigmo_InClusterList[] =
 {
   ZCL_CLUSTER_ID_GEN_BASIC,
   ZCL_CLUSTER_ID_GEN_IDENTIFY,
-  ZCL_CLUSTER_ID_GEN_ON_OFF_SWITCH_CONFIG
+  ZCL_CLUSTER_ID_GEN_ON_OFF_SWITCH_CONFIG,
+  ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY
 };
 
 #define ZCLZIGMO_MAX_INCLUSTERS    ( sizeof( zclZigmo_InClusterList ) / sizeof( zclZigmo_InClusterList[0] ))
@@ -349,6 +396,8 @@ void zclZigmo_ResetAttributesToDefaultValues(void)
   zclZigmo_IdentifyTime = DEFAULT_IDENTIFY_TIME;
   
   zclZigmo_OnOffSwitchActions = ON_OFF_SWITCH_ACTIONS_TOGGLE; //note that the default specified by the zcl spec is ON_OFF_SWITCH_ACTIONS_ON, but for backward compatibility with TI's legacy sample-switch, we use here ON_OFF_SWITCH_ACTIONS_TOGGLE
+  
+  zclZigmoHumidity_MeasuredValue = 500;
 }
 
 /****************************************************************************

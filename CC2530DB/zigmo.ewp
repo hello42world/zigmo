@@ -5808,9 +5808,6 @@
             <name>$PROJ_DIR$\..\Source\OSAL_zigmo.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\Source\zcl_sampleapps_ui.h</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\Source\zcl_zigmo.c</name>
         </file>
         <file>

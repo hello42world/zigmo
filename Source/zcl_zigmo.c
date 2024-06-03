@@ -184,11 +184,6 @@ static void zclSampleApp_BatteryWarningCB( uint8 voltLevel);
 /*********************************************************************
  * CONSTANTS
  */
-  const uiState_t zclZigmo_UiStatesMain[] = 
-  {
-    /*  UI_STATE_BACK_FROM_APP_MENU  */   {UI_STATE_DEFAULT_MOVE,       UI_STATE_TOGGLE_LIGHT,  UI_KEY_SW_5_PRESSED, &UI_ActionBackFromAppMenu}, //do not change this line, except for the second item, which should point to the last entry in this menu
-    /*  UI_STATE_TOGGLE_LIGHT        */   {UI_STATE_BACK_FROM_APP_MENU, UI_STATE_DEFAULT_MOVE,  UI_KEY_SW_5_PRESSED | UI_KEY_SW_5_RELEASED, &zclZigmo_UiActionToggleLight},
-  };
   
 /*********************************************************************
  * REFERENCED EXTERNALS
