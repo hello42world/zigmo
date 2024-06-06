@@ -326,6 +326,49 @@ CONST zclAttrRec_t zclZigmo_Attrs[] =
 
 uint8 CONST zclZigmo_NumAttributes = ( sizeof(zclZigmo_Attrs) / sizeof(zclZigmo_Attrs[0]) );
 
+CONST zclAttrRec_t zclZigmo_Attrs2[] = {
+  // *** Relative humidity Cluster *** //
+  {
+    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
+    { // Attribute record
+      ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE,
+      ZCL_DATATYPE_INT16,
+      ACCESS_CONTROL_READ | ACCESS_REPORTABLE,
+      (void *)&zclZigmoHumidity_MeasuredValue
+    }
+  },
+  {
+    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
+    { // Attribute record
+      ATTRID_MS_RELATIVE_HUMIDITY_MIN_MEASURED_VALUE,
+      ZCL_DATATYPE_INT16,
+      ACCESS_CONTROL_READ,
+      (void *)&zclZigmoHumidity_MinMeasuredValue
+    }
+  },
+  {
+    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
+    { // Attribute record
+      ATTRID_MS_RELATIVE_HUMIDITY_MAX_MEASURED_VALUE,
+      ZCL_DATATYPE_INT16,
+      ACCESS_CONTROL_READ,
+      (void *)&zclZigmoHumidity_MaxMeasuredValue
+    }
+  },
+
+  {
+    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
+    {   // Attribute record
+      ATTRID_CLUSTER_REVISION,
+      ZCL_DATATYPE_UINT16,
+      ACCESS_CONTROL_READ,
+      (void *)&zclZigmo_clusterRevision_all
+    }
+  }
+};
+uint8 CONST zclZigmo_NumAttributes2 = ( sizeof(zclZigmo_Attrs2) / sizeof(zclZigmo_Attrs2[0]) );
+
+
 /*********************************************************************
  * SIMPLE DESCRIPTOR
  */
@@ -361,6 +404,39 @@ SimpleDescriptionFormat_t zclZigmo_SimpleDesc =
   (cId_t *)zclZigmo_InClusterList, //  byte *pAppInClusterList;
   ZCLZIGMO_MAX_OUTCLUSTERS,        //  byte  AppNumInClusters;
   (cId_t *)zclZigmo_OutClusterList //  byte *pAppInClusterList;
+};
+
+
+/*********************************************************************
+ * SIMPLE DESCRIPTOR2
+ */
+// This is the Cluster ID List and should be filled with Application
+// specific cluster IDs.
+const cId_t zclZigmo_InClusterList2[] =
+{
+  ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY
+};
+
+#define ZCLZIGMO_MAX_INCLUSTERS2    ( sizeof( zclZigmo_InClusterList2 ) / sizeof( zclZigmo_InClusterList2[0] ))
+/*
+const cId_t zclZigmo_OutClusterList2[] =
+{
+};
+
+#define ZCLZIGMO_MAX_OUTCLUSTERS2   ( sizeof( zclZigmo_OutClusterList2 ) / sizeof( zclZigmo_OutClusterList2[0] ))
+*/
+
+SimpleDescriptionFormat_t zclZigmo_SimpleDesc2 =
+{
+  ZIGMO_ENDPOINT2,                  //  int Endpoint;
+  ZCL_HA_PROFILE_ID,                  //  uint16 AppProfId[2];
+  ZCL_HA_DEVICEID_SIMPLE_SENSOR,//  uint16 AppDeviceId[2];
+  ZIGMO_DEVICE_VERSION,            //  int   AppDevVer:4;
+  ZIGMO_FLAGS,                     //  int   AppFlags:4;
+  ZCLZIGMO_MAX_INCLUSTERS2,         //  byte  AppNumInClusters;
+  (cId_t *)zclZigmo_InClusterList2, //  byte *pAppInClusterList;
+  0,        //  byte  AppNumInClusters;
+  (cId_t *)NULL //  byte *pAppInClusterList;
 };
 
 /*********************************************************************

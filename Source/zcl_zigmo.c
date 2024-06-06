@@ -246,14 +246,17 @@ void zclZigmo_Init( byte task_id )
 
   // Register the Simple Descriptor for this application
   bdb_RegisterSimpleDescriptor( &zclZigmo_SimpleDesc );
+  bdb_RegisterSimpleDescriptor( &zclZigmo_SimpleDesc2 );
 
   // Register the ZCL General Cluster Library callback functions
   zclGeneral_RegisterCmdCallbacks( ZIGMO_ENDPOINT, &zclZigmo_CmdCallbacks );
+  zclGeneral_RegisterCmdCallbacks( ZIGMO_ENDPOINT2, &zclZigmo_CmdCallbacks );
 
   zclZigmo_ResetAttributesToDefaultValues();
   
   // Register the application's attribute list
   zcl_registerAttrList( ZIGMO_ENDPOINT, zclZigmo_NumAttributes, zclZigmo_Attrs );
+  zcl_registerAttrList( ZIGMO_ENDPOINT2, zclZigmo_NumAttributes2, zclZigmo_Attrs2 );
 
   // Register the Application to receive the unprocessed Foundation command/response messages
   zcl_registerForMsg( zclZigmo_TaskID );

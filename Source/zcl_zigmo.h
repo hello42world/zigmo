@@ -56,7 +56,8 @@ extern "C"
  * CONSTANTS
  */
 #define ZIGMO_ENDPOINT               8
-
+#define ZIGMO_ENDPOINT2              9
+  
 #define LIGHT_OFF                       0x00
 #define LIGHT_ON                        0x01
 
@@ -80,10 +81,10 @@ extern "C"
  * VARIABLES
  */
 extern SimpleDescriptionFormat_t zclZigmo_SimpleDesc;
-
-extern SimpleDescriptionFormat_t zclZigmo9_SimpleDesc;
+extern SimpleDescriptionFormat_t zclZigmo_SimpleDesc2;
 
 extern CONST zclAttrRec_t zclZigmo_Attrs[];
+extern CONST zclAttrRec_t zclZigmo_Attrs2[];
 
 extern uint8  zclZigmo_OnOff;
 
@@ -94,6 +95,8 @@ extern uint8 zclZigmo_OnOffSwitchType;
 extern uint8 zclZigmo_OnOffSwitchActions;
 
 extern CONST uint8 zclZigmo_NumAttributes;
+extern CONST uint8 zclZigmo_NumAttributes2;
+
 
 /*********************************************************************
  * FUNCTIONS
