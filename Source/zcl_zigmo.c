@@ -150,7 +150,6 @@ devStates_t zclZigmo_NwkState = DEV_INIT;
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
-static void zclZigmo_HandleKeys( byte shift, byte keys );
 static void zclZigmo_BasicResetCB( void );
 
 static void zclZigmo_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbCommissioningModeMsg);
@@ -175,8 +174,6 @@ static uint8 zclZigmo_ProcessInDiscAttrsExtRspCmd( zclIncomingMsg_t *pInMsg );
 static void zclZigmo_ProcessOTAMsgs( zclOTA_CallbackMsg_t* pMsg );
 #endif
 
-void zclZigmo_UiActionToggleLight(uint16 keys);
-void zclZigmo_UiUpdateLcd(uint8 uiCurrentState, char * line[3]);
 
 static void zclSampleApp_BatteryWarningCB( uint8 voltLevel);
 
@@ -290,9 +287,6 @@ void zclZigmo_Init( byte task_id )
 
   zdpExternalStateTaskID = zclZigmo_TaskID;
 
-  // UI_Init(zclZigmo_TaskID, SAMPLEAPP_LCD_AUTO_UPDATE_EVT, SAMPLEAPP_KEY_AUTO_REPEAT_EVT, &zclZigmo_IdentifyTime, APP_TITLE, &zclZigmo_UiUpdateLcd, zclZigmo_UiStatesMain);
-
-  // UI_UpdateLcd();
 }
 
 /*********************************************************************
@@ -331,10 +325,6 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
           zclZigmo_ProcessIncomingMsg( (zclIncomingMsg_t *)MSGpkt );
           break;
 
-        case KEY_CHANGE:
-          zclZigmo_HandleKeys( ((keyChange_t *)MSGpkt)->state, ((keyChange_t *)MSGpkt)->keys );
-          break;
-
         case ZDO_STATE_CHANGE:
           // UI_DeviceStateUpdated((devStates_t)(MSGpkt->hdr.status));
           break;
@@ -365,38 +355,8 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
   }
 #endif
 
-  if ( events & SAMPLEAPP_LCD_AUTO_UPDATE_EVT )
-  {
-    // UI_UpdateLcd();
-    return ( events ^ SAMPLEAPP_LCD_AUTO_UPDATE_EVT );
-  }
-
-  if ( events & SAMPLEAPP_KEY_AUTO_REPEAT_EVT )
-  {
-    // UI_MainStateMachine(UI_KEY_AUTO_PRESSED);
-    return ( events ^ SAMPLEAPP_KEY_AUTO_REPEAT_EVT );
-  }
   // Discard unknown events
   return 0;
-}
-
-/*********************************************************************
- * @fn      zclZigmo_HandleKeys
- *
- * @brief   Handles all key events for this device.
- *
- * @param   shift - true if in shift/alt.
- * @param   keys - bit field for key events. Valid entries:
- *                 HAL_KEY_SW_5
- *                 HAL_KEY_SW_4
- *                 HAL_KEY_SW_2
- *                 HAL_KEY_SW_1
- *
- * @return  none
- */
-static void zclZigmo_HandleKeys( byte shift, byte keys )
-{
-  // UI_MainStateMachine(keys);
 }
 
 
@@ -786,33 +746,8 @@ static void zclZigmo_ProcessOTAMsgs( zclOTA_CallbackMsg_t* pMsg )
 }
 #endif // defined (OTA_CLIENT) && (OTA_CLIENT == TRUE)
 
-/****************************************************************************
-****************************************************************************/
-
-void zclZigmo_UiActionToggleLight(uint16 keys)
-{
-  if (zclZigmo_OnOffSwitchActions == ON_OFF_SWITCH_ACTIONS_TOGGLE)
-  {
-    if (keys & UI_KEY_SW_5_PRESSED)
-    {
-      zclGeneral_SendOnOff_CmdToggle( ZIGMO_ENDPOINT, &zclZigmo_DstAddr, FALSE, bdb_getZCLFrameCounter() );
-    }
-  }
-  else if (((keys & UI_KEY_SW_5_PRESSED) && (zclZigmo_OnOffSwitchActions == ON_OFF_SWITCH_ACTIONS_ON))
-    || ((keys & UI_KEY_SW_5_RELEASED) && (zclZigmo_OnOffSwitchActions == ON_OFF_SWITCH_ACTIONS_OFF)))
-  {
-    zclGeneral_SendOnOff_CmdOn( ZIGMO_ENDPOINT, &zclZigmo_DstAddr, FALSE, bdb_getZCLFrameCounter() );
-  }
-  else
-  {
-    zclGeneral_SendOnOff_CmdOff( ZIGMO_ENDPOINT, &zclZigmo_DstAddr, FALSE, bdb_getZCLFrameCounter() );
-  }
-}
 
 
-void zclZigmo_UiUpdateLcd(uint8 gui_state, char * line[3])
-{
-  line[2] = "< TOGGLE LIGHT >";
-}
+
 
 
