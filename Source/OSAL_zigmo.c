@@ -121,6 +121,7 @@ const pTaskEventHandlerFn tasksArr[] = {
   zcl_event_loop,
   bdb_event_loop,
   zclZigmo_event_loop,
+  zclZigmo_moisture_sensor_event_loop,
 #if (defined OTA_CLIENT) && (OTA_CLIENT == TRUE)
   zclOTA_event_loop
 #endif

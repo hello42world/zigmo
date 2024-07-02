@@ -370,9 +370,61 @@ zigmoSensorEndpoint zclZigmo_endpoints[NUM_SENSORS];
  */
 
 
-void zclZigmo_InitSensorEndpoint(zigmoSensorEndpoint* endpoint, uint8 endpointId) 
+void zclZigmo_InitSensorEndpoint(
+                                 zigmoSensorEndpoint* ep, 
+                                 uint8 endpointId,
+                                 uint8* pTaskId) 
 {
+  // Init attributes
+  ep->attrs[0].clusterID = ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY;
+  ep->attrs[0].attr.attrId = ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE;
+  ep->attrs[0].attr.dataType = ZCL_DATATYPE_INT16;
+  ep->attrs[0].attr.accessControl = ACCESS_CONTROL_READ | ACCESS_REPORTABLE;
+  ep->attrs[0].attr.dataPtr = (void*)&ep->measuredValue;
   
+  ep->attrs[1].clusterID = ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY;
+  ep->attrs[1].attr.attrId = ATTRID_MS_RELATIVE_HUMIDITY_MIN_MEASURED_VALUE;
+  ep->attrs[1].attr.dataType = ZCL_DATATYPE_INT16;
+  ep->attrs[1].attr.accessControl = ACCESS_CONTROL_READ;
+  ep->attrs[1].attr.dataPtr = (void *)&zclZigmoHumidity_MinMeasuredValue;
+  
+  ep->attrs[2].clusterID = ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY;
+  ep->attrs[2].attr.attrId = ATTRID_MS_RELATIVE_HUMIDITY_MAX_MEASURED_VALUE;
+  ep->attrs[2].attr.dataType = ZCL_DATATYPE_INT16;
+  ep->attrs[2].attr.accessControl = ACCESS_CONTROL_READ;
+  ep->attrs[2].attr.dataPtr = (void *)&zclZigmoHumidity_MaxMeasuredValue;
+
+  ep->attrs[3].clusterID = ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY;
+  ep->attrs[3].attr.attrId = ATTRID_CLUSTER_REVISION;
+  ep->attrs[3].attr.dataType = ZCL_DATATYPE_UINT16;
+  ep->attrs[3].attr.accessControl = ACCESS_CONTROL_READ;
+  ep->attrs[3].attr.dataPtr = (void *)&zclZigmo_clusterRevision_all;
+  
+  // Init simple descriptor
+  static const cId_t _InClusterList[] =
+  {
+    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY
+  };
+  
+  ep->simpleDesc.EndPoint = endpointId;
+  ep->simpleDesc.AppProfId = ZCL_HA_PROFILE_ID;
+  ep->simpleDesc.AppDeviceId = ZCL_HA_DEVICEID_SIMPLE_SENSOR;
+  ep->simpleDesc.AppDevVer = ZIGMO_DEVICE_VERSION;
+  ep->simpleDesc.Reserved = ZIGMO_FLAGS;
+  ep->simpleDesc.AppNumInClusters = 1;
+  ep->simpleDesc.pAppInClusterList = (cId_t*) _InClusterList;
+  ep->simpleDesc.AppNumOutClusters = 0;
+  ep->simpleDesc.pAppOutClusterList = NULL;
+  
+  // Init endpoint
+  ep->endpoint.endPoint = endpointId;
+  ep->endpoint.epType = 0;
+  ep->endpoint.task_id = pTaskId;
+  ep->endpoint.simpleDesc = NULL; // Why? We do have a simpledesc... 
+  ep->endpoint.latencyReq = noLatencyReqs;
+    
+  // Init measured value
+  ep->measuredValue = -1;
 }
 
 

@@ -255,9 +255,6 @@ void zclZigmo_Init( byte task_id )
   
   // Register low voltage NV memory protection application callback
   RegisterVoltageWarningCB( zclSampleApp_BatteryWarningCB );
-
-  // Register for all key events - This app will handle all key events
-  // RegisterForKeys( zclZigmo_TaskID );
   
   bdb_RegisterCommissioningStatusCB( zclZigmo_ProcessCommissioningStatus );
 
@@ -284,14 +281,32 @@ void zclZigmo_Init( byte task_id )
 
 }
 
+
 void zclZigmo_InitMoistureSensors( byte task_id )
 {
   int i;
+  
+  // Init taskId
+  zclZigmo_HumidityTaskID = task_id;
+  
   // Init sensor endpoint data structures
   for (i = 0; i < NUM_SENSORS; i++) 
   {
-    zclZigmo_InitSensorEndpoint(&zclZigmo_endpoints[i], ZIGMO_FIRST_SENSOR_ENDPOINT + i);
+    zclZigmo_InitSensorEndpoint(&zclZigmo_endpoints[i], 
+                                ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
+                                &zclZigmo_HumidityTaskID);
+    
+    bdb_RegisterSimpleDescriptor( &zclZigmo_endpoints[i].simpleDesc );
+    zclGeneral_RegisterCmdCallbacks( ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
+                                    &zclZigmo_CmdCallbacks );
+    zcl_registerAttrList( ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
+                         ZIGMO_MOISTURE_SENSOR_NUM_ATTR, 
+                         (CONST zclAttrRec_t*) zclZigmo_endpoints[i].attrs );
+
+    afRegister( &zclZigmo_endpoints[i].endpoint );
   }
+  
+  
 }
 
 
@@ -362,6 +377,12 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
 #endif
 
   // Discard unknown events
+  return 0;
+}
+
+UINT16 zclZigmo_moisture_sensor_event_loop( byte task_id, UINT16 events ) 
+{
+
   return 0;
 }
 
