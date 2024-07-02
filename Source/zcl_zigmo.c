@@ -112,12 +112,7 @@
  * GLOBAL VARIABLES
  */
 byte zclZigmo_TaskID;
-
-uint8 zclZigmoSeqNum;
-
-uint8 zclZigmo_OnOffSwitchType = ON_OFF_SWITCH_TYPE_MOMENTARY;
-
-uint8 zclZigmo_OnOffSwitchActions;
+byte zclZigmo_HumidityTaskID;
 
 /*********************************************************************
  * GLOBAL FUNCTIONS
@@ -243,26 +238,26 @@ void zclZigmo_Init( byte task_id )
 
   // Register the Simple Descriptor for this application
   bdb_RegisterSimpleDescriptor( &zclZigmo_SimpleDesc );
-  bdb_RegisterSimpleDescriptor( &zclZigmo_SimpleDesc2 );
+  //bdb_RegisterSimpleDescriptor( &zclZigmo_SimpleDesc2 );
 
   // Register the ZCL General Cluster Library callback functions
   zclGeneral_RegisterCmdCallbacks( ZIGMO_ENDPOINT, &zclZigmo_CmdCallbacks );
-  zclGeneral_RegisterCmdCallbacks( ZIGMO_ENDPOINT2, &zclZigmo_CmdCallbacks );
+  //zclGeneral_RegisterCmdCallbacks( ZIGMO_ENDPOINT2, &zclZigmo_CmdCallbacks );
 
   zclZigmo_ResetAttributesToDefaultValues();
   
   // Register the application's attribute list
   zcl_registerAttrList( ZIGMO_ENDPOINT, zclZigmo_NumAttributes, zclZigmo_Attrs );
-  zcl_registerAttrList( ZIGMO_ENDPOINT2, zclZigmo_NumAttributes2, zclZigmo_Attrs2 );
+  //zcl_registerAttrList( ZIGMO_ENDPOINT2, zclZigmo_NumAttributes2, zclZigmo_Attrs2 );
 
   // Register the Application to receive the unprocessed Foundation command/response messages
-  zcl_registerForMsg( zclZigmo_TaskID );
+  zcl_registerForMsg( zclZigmo_TaskID ); 
   
   // Register low voltage NV memory protection application callback
   RegisterVoltageWarningCB( zclSampleApp_BatteryWarningCB );
 
   // Register for all key events - This app will handle all key events
-  RegisterForKeys( zclZigmo_TaskID );
+  // RegisterForKeys( zclZigmo_TaskID );
   
   bdb_RegisterCommissioningStatusCB( zclZigmo_ProcessCommissioningStatus );
 
@@ -289,6 +284,17 @@ void zclZigmo_Init( byte task_id )
 
 }
 
+void zclZigmo_InitMoistureSensors( byte task_id )
+{
+  int i;
+  // Init sensor endpoint data structures
+  for (i = 0; i < NUM_SENSORS; i++) 
+  {
+    zclZigmo_InitSensorEndpoint(&zclZigmo_endpoints[i], ZIGMO_FIRST_SENSOR_ENDPOINT + i);
+  }
+}
+
+
 /*********************************************************************
  * @fn          zclSample_event_loop
  *
@@ -306,8 +312,8 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
   //Send toggle every 500ms
   if( events & ZIGMO_TOGGLE_TEST_EVT )
   {
-    osal_start_timerEx(zclZigmo_TaskID,ZIGMO_TOGGLE_TEST_EVT,500);
-    zclGeneral_SendOnOff_CmdToggle( ZIGMO_ENDPOINT, &zclZigmo_DstAddr, FALSE, 0 );
+    osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 500);
+    // zclGeneral_SendOnOff_CmdToggle( ZIGMO_ENDPOINT, &zclZigmo_DstAddr, FALSE, 0 );
     
     // return unprocessed events
     return (events ^ ZIGMO_TOGGLE_TEST_EVT);
@@ -449,9 +455,6 @@ static void zclZigmo_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbCo
 static void zclZigmo_BasicResetCB( void )
 {
   zclZigmo_ResetAttributesToDefaultValues();
-
-  // update the display
-  // UI_UpdateLcd( ); 
 }
 
 /*********************************************************************

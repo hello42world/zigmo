@@ -56,7 +56,7 @@ extern "C"
  * CONSTANTS
  */
 #define ZIGMO_ENDPOINT               8
-#define ZIGMO_ENDPOINT2              9
+#define ZIGMO_FIRST_SENSOR_ENDPOINT  9
   
 #define LIGHT_OFF                       0x00
 #define LIGHT_ON                        0x01
@@ -64,36 +64,40 @@ extern "C"
 // Events for the sample app
 #define SAMPLEAPP_END_DEVICE_REJOIN_EVT   0x0001
 
-
 #define SAMPLEAPP_END_DEVICE_REJOIN_DELAY 10000
 
+#define NUM_SENSORS 12
 /*********************************************************************
  * MACROS
  */
 /*********************************************************************
  * TYPEDEFS
  */
+   
+typedef struct {
+  zclAttrRec_t attrs[4];
+  SimpleDescriptionFormat_t simpleDesc;
+  endPointDesc_t endpoint;
+  
+  int16 measuredValue;
+} zigmoSensorEndpoint;
 
 /*********************************************************************
  * VARIABLES
  */
 extern SimpleDescriptionFormat_t zclZigmo_SimpleDesc;
-extern SimpleDescriptionFormat_t zclZigmo_SimpleDesc2;
+//extern SimpleDescriptionFormat_t zclZigmo_SimpleDesc2;
 
 extern CONST zclAttrRec_t zclZigmo_Attrs[];
-extern CONST zclAttrRec_t zclZigmo_Attrs2[];
-
-extern uint8  zclZigmo_OnOff;
+//extern CONST zclAttrRec_t zclZigmo_Attrs2[];
 
 extern uint16 zclZigmo_IdentifyTime;
 
-extern uint8 zclZigmo_OnOffSwitchType;
-
-extern uint8 zclZigmo_OnOffSwitchActions;
-
 extern CONST uint8 zclZigmo_NumAttributes;
-extern CONST uint8 zclZigmo_NumAttributes2;
+//extern CONST uint8 zclZigmo_NumAttributes2;
 
+
+extern zigmoSensorEndpoint zclZigmo_endpoints[NUM_SENSORS];
 
 /*********************************************************************
  * FUNCTIONS
@@ -104,6 +108,8 @@ extern CONST uint8 zclZigmo_NumAttributes2;
   */
 extern void zclZigmo_Init( byte task_id );
 
+extern void zclZigmo_InitMoistureSensors( byte task_id );
+
 /*
  *  Event Process for the task
  */
@@ -113,6 +119,8 @@ extern UINT16 zclZigmo_event_loop( byte task_id, UINT16 events );
  *  Reset all writable attributes to their default values.
  */
 extern void zclZigmo_ResetAttributesToDefaultValues(void); //implemented in zcl_zigmo_data.c
+
+extern void zclZigmo_InitSensorEndpoint(zigmoSensorEndpoint* endpoint, uint8 endpointId);
 
 /*********************************************************************
 *********************************************************************/

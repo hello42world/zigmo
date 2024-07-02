@@ -181,6 +181,7 @@ void osalInitTasks( void )
   zcl_Init( taskID++ );
   bdb_Init( taskID++ );
   zclZigmo_Init( taskID++ );
+  zclZigmo_InitMoistureSensors(taskID++);
 #if (defined OTA_CLIENT) && (OTA_CLIENT == TRUE)
   zclOTA_Init( taskID );
 #endif

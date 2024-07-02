@@ -1483,8 +1483,8 @@
                     <state>ZCL_IDENTIFY</state>
                     <state>ZCL_ON_OFF</state>
                     <state>xZCL_GROUPS</state>
-                    <state>xNWK_MAX_DEVICE_LIST=3</state>
-                    <state>MAX_NEIGHBOR_ENTRIES=12</state>
+                    <state>NWK_MAX_DEVICE_LIST=2</state>
+                    <state>MAX_NEIGHBOR_ENTRIES=2</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
