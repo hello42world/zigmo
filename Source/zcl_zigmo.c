@@ -238,17 +238,14 @@ void zclZigmo_Init( byte task_id )
 
   // Register the Simple Descriptor for this application
   bdb_RegisterSimpleDescriptor( &zclZigmo_SimpleDesc );
-  //bdb_RegisterSimpleDescriptor( &zclZigmo_SimpleDesc2 );
 
   // Register the ZCL General Cluster Library callback functions
   zclGeneral_RegisterCmdCallbacks( ZIGMO_ENDPOINT, &zclZigmo_CmdCallbacks );
-  //zclGeneral_RegisterCmdCallbacks( ZIGMO_ENDPOINT2, &zclZigmo_CmdCallbacks );
 
   zclZigmo_ResetAttributesToDefaultValues();
   
   // Register the application's attribute list
   zcl_registerAttrList( ZIGMO_ENDPOINT, zclZigmo_NumAttributes, zclZigmo_Attrs );
-  //zcl_registerAttrList( ZIGMO_ENDPOINT2, zclZigmo_NumAttributes2, zclZigmo_Attrs2 );
 
   // Register the Application to receive the unprocessed Foundation command/response messages
   zcl_registerForMsg( zclZigmo_TaskID ); 
@@ -278,7 +275,9 @@ void zclZigmo_Init( byte task_id )
 #endif
 
   zdpExternalStateTaskID = zclZigmo_TaskID;
-
+  
+  // Use the same task ID.
+  zclZigmo_InitMoistureSensors(task_id);
 }
 
 
@@ -297,16 +296,19 @@ void zclZigmo_InitMoistureSensors( byte task_id )
                                 &zclZigmo_HumidityTaskID);
     
     bdb_RegisterSimpleDescriptor( &zclZigmo_endpoints[i].simpleDesc );
+    
     zclGeneral_RegisterCmdCallbacks( ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
                                     &zclZigmo_CmdCallbacks );
+    
     zcl_registerAttrList( ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
                          ZIGMO_MOISTURE_SENSOR_NUM_ATTR, 
                          (CONST zclAttrRec_t*) zclZigmo_endpoints[i].attrs );
 
     afRegister( &zclZigmo_endpoints[i].endpoint );
+    
+    // tmp !
+    zclZigmo_endpoints[i].measuredValue = 500 + (i * 100);
   }
-  
-  
 }
 
 

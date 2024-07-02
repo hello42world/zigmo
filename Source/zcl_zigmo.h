@@ -87,10 +87,8 @@ typedef struct {
  * VARIABLES
  */
 extern SimpleDescriptionFormat_t zclZigmo_SimpleDesc;
-//extern SimpleDescriptionFormat_t zclZigmo_SimpleDesc2;
 
 extern CONST zclAttrRec_t zclZigmo_Attrs[];
-//extern CONST zclAttrRec_t zclZigmo_Attrs2[];
 
 extern uint16 zclZigmo_IdentifyTime;
 

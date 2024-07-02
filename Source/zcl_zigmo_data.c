@@ -370,8 +370,7 @@ zigmoSensorEndpoint zclZigmo_endpoints[NUM_SENSORS];
  */
 
 
-void zclZigmo_InitSensorEndpoint(
-                                 zigmoSensorEndpoint* ep, 
+void zclZigmo_InitSensorEndpoint(zigmoSensorEndpoint* ep, 
                                  uint8 endpointId,
                                  uint8* pTaskId) 
 {
@@ -456,7 +455,6 @@ void zclZigmo_ResetAttributesToDefaultValues(void)
   {
     zclZigmo_endpoints[i].measuredValue = -1;
   }
-
 }
 
 /****************************************************************************
