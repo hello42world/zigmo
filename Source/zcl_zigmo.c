@@ -246,13 +246,11 @@ void zclZigmo_Init( byte task_id )
 
   // Register the Simple Descriptor for this application
   bdb_RegisterSimpleDescriptor( &zclZigmo_SimpleDesc );
-  bdb_RegisterSimpleDescriptor( &zclZigmo_SimpleDesc2 );
 
       bdb_RegisterSimpleDescriptor(&zclZigmo_endpoints[0].simpleDesc);
 
   // Register the ZCL General Cluster Library callback functions
   zclGeneral_RegisterCmdCallbacks( ZIGMO_ENDPOINT, &zclZigmo_CmdCallbacks );
-  zclGeneral_RegisterCmdCallbacks( ZIGMO_ENDPOINT2, &zclZigmo_CmdCallbacks );
   
       zclGeneral_RegisterCmdCallbacks( ZIGMO_FIRST_SENSOR_ENDPOINT, 
                                     &zclZigmo_CmdCallbacks );
@@ -261,8 +259,6 @@ void zclZigmo_Init( byte task_id )
   
   // Register the application's attribute list
   zcl_registerAttrList( ZIGMO_ENDPOINT, zclZigmo_NumAttributes, zclZigmo_Attrs );
-  zcl_registerAttrList( ZIGMO_ENDPOINT2, zclZigmo_NumAttributes2, zclZigmo_Attrs2 );
-
   
       zcl_registerAttrList( ZIGMO_FIRST_SENSOR_ENDPOINT, 
                          ZIGMO_NUM_SENSOR_ZCL_ATTR, 
