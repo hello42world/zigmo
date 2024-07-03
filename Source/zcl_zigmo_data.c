@@ -107,8 +107,6 @@ uint8 zclZigmo_DeviceEnable = DEVICE_ENABLED;
 // Identify Cluster
 uint16 zclZigmo_IdentifyTime = 0;
 
-// Temperature Sensor Cluster
-int16 zclZigmoHumidity_MeasuredValue;
 
 
 /*********************************************************************
@@ -284,16 +282,22 @@ SimpleDescriptionFormat_t zclZigmo_SimpleDesc =
 
 // Sensor array
 
-zigmoSensorEndpoint zclZigmo_endpoints[NUM_SENSORS];
+zigmoSensorEndpoint zclZigmo_endpoints[ZIGMO_NUM_SENSORS];
 
 CONST zclAttrRec_t zigmo_sensor_attrs[][ZIGMO_NUM_SENSOR_ZCL_ATTR] = {
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[0].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[1].measuredValue)
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[1].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[2].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[3].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[4].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[5].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[6].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[7].measuredValue),
 };
 
 // Number of attrs in zigmo_sensor_attrs must == NUM_SENSORS
 STATIC_ASSERT(
-              (sizeof(zigmo_sensor_attrs) / sizeof(zclAttrRec_t) / ZIGMO_NUM_SENSOR_ZCL_ATTR) == NUM_SENSORS, 
+              (sizeof(zigmo_sensor_attrs) / sizeof(zclAttrRec_t) / ZIGMO_NUM_SENSOR_ZCL_ATTR) == ZIGMO_NUM_SENSORS, 
               num_attr_mismatch_w_sensors);
 
 /*********************************************************************
@@ -334,7 +338,7 @@ void zclZigmo_InitSensorEndpoint(zigmoSensorEndpoint* ep,
   ep->endpoint.latencyReq = noLatencyReqs;
     
   // Init measured value
-  ep->measuredValue = 0;
+  ep->measuredValue = -1;
 }
 
 
@@ -362,12 +366,10 @@ void zclZigmo_ResetAttributesToDefaultValues(void)
   
   zclZigmo_IdentifyTime = DEFAULT_IDENTIFY_TIME;
     
-  for (i = 0; i < NUM_SENSORS; i++) 
+  for (i = 0; i < ZIGMO_NUM_SENSORS; i++) 
   {
-    zclZigmo_endpoints[i].measuredValue = 1500;
+    zclZigmo_endpoints[i].measuredValue = -1;
   }
-  
-  zclZigmoHumidity_MeasuredValue = 1200;
 }
 
 /****************************************************************************

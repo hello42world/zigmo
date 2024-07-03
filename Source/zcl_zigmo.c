@@ -232,10 +232,10 @@ void zclZigmo_Init( byte task_id )
 {
   zclZigmo_TaskID = task_id;
   
-      zclZigmo_HumidityTaskID = task_id;
-      zclZigmo_InitSensorEndpoint(&zclZigmo_endpoints[0], 
-                                ZIGMO_FIRST_SENSOR_ENDPOINT, 
-                                &zclZigmo_HumidityTaskID);
+//  zclZigmo_HumidityTaskID = task_id;
+//  zclZigmo_InitSensorEndpoint(&zclZigmo_endpoints[0], 
+//                                ZIGMO_FIRST_SENSOR_ENDPOINT, 
+//                                &zclZigmo_HumidityTaskID);
       
       
   // Set destination address to indirect
@@ -247,22 +247,22 @@ void zclZigmo_Init( byte task_id )
   // Register the Simple Descriptor for this application
   bdb_RegisterSimpleDescriptor( &zclZigmo_SimpleDesc );
 
-      bdb_RegisterSimpleDescriptor(&zclZigmo_endpoints[0].simpleDesc);
+      //bdb_RegisterSimpleDescriptor(&zclZigmo_endpoints[0].simpleDesc);
 
   // Register the ZCL General Cluster Library callback functions
   zclGeneral_RegisterCmdCallbacks( ZIGMO_ENDPOINT, &zclZigmo_CmdCallbacks );
   
-      zclGeneral_RegisterCmdCallbacks( ZIGMO_FIRST_SENSOR_ENDPOINT, 
-                                    &zclZigmo_CmdCallbacks );
+      //zclGeneral_RegisterCmdCallbacks( ZIGMO_FIRST_SENSOR_ENDPOINT, 
+      //                             &zclZigmo_CmdCallbacks );
 
   zclZigmo_ResetAttributesToDefaultValues();
   
   // Register the application's attribute list
   zcl_registerAttrList( ZIGMO_ENDPOINT, zclZigmo_NumAttributes, zclZigmo_Attrs );
   
-      zcl_registerAttrList( ZIGMO_FIRST_SENSOR_ENDPOINT, 
-                         ZIGMO_NUM_SENSOR_ZCL_ATTR, 
-                         zclZigmo_endpoints[0].pAttrs );
+      //zcl_registerAttrList( ZIGMO_FIRST_SENSOR_ENDPOINT, 
+      //                  ZIGMO_NUM_SENSOR_ZCL_ATTR, 
+      //                  zclZigmo_endpoints[0].pAttrs );
 
   // Register the Application to receive the unprocessed Foundation command/response messages
   zcl_registerForMsg( zclZigmo_TaskID ); 
@@ -293,8 +293,8 @@ void zclZigmo_Init( byte task_id )
 
   zdpExternalStateTaskID = zclZigmo_TaskID;
   
-  // Use the same task ID.
-  // zclZigmo_InitMoistureSensors(task_id);
+  // Init the moistue sensors
+  zclZigmo_InitMoistureSensors(task_id);
 }
 
 
@@ -306,7 +306,7 @@ void zclZigmo_InitMoistureSensors( byte task_id )
   zclZigmo_HumidityTaskID = task_id;
   
   // Init sensor endpoint data structures
-  for (i = 0; i < NUM_SENSORS; i++) 
+  for (i = 0; i < ZIGMO_NUM_SENSORS; i++) 
   {
     zclZigmo_InitSensorEndpoint(&zclZigmo_endpoints[i], 
                                 ZIGMO_FIRST_SENSOR_ENDPOINT + i, 

@@ -59,8 +59,6 @@ extern "C"
 #define ZIGMO_ENDPOINT               8
 #define ZIGMO_FIRST_SENSOR_ENDPOINT  9
 
-#define ZIGMO_ENDPOINT2              42
-
   
 #define LIGHT_OFF                       0x00
 #define LIGHT_ON                        0x01
@@ -70,7 +68,7 @@ extern "C"
 
 #define SAMPLEAPP_END_DEVICE_REJOIN_DELAY 10000
 
-#define NUM_SENSORS 2
+#define ZIGMO_NUM_SENSORS 8
 /*********************************************************************
  * MACROS
  */
@@ -93,7 +91,7 @@ extern CONST uint8 zclZigmo_NumAttributes;
 extern CONST uint8 zclZigmo_NumAttributes2;
 
 
-extern zigmoSensorEndpoint zclZigmo_endpoints[NUM_SENSORS];
+extern zigmoSensorEndpoint zclZigmo_endpoints[ZIGMO_NUM_SENSORS];
 /*********************************************************************
  * FUNCTIONS
  */
