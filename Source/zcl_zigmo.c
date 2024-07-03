@@ -218,6 +218,7 @@ static zclGeneral_AppCallbacks_t zclZigmo_CmdCallbacks =
   NULL                                    // RSSI Location Response command
 };
 
+
 /*********************************************************************
  * @fn          zclZigmo_Init
  *
@@ -230,22 +231,42 @@ static zclGeneral_AppCallbacks_t zclZigmo_CmdCallbacks =
 void zclZigmo_Init( byte task_id )
 {
   zclZigmo_TaskID = task_id;
-
+  
+      zclZigmo_HumidityTaskID = task_id;
+      zclZigmo_InitSensorEndpoint(&zclZigmo_endpoints[0], 
+                                ZIGMO_FIRST_SENSOR_ENDPOINT, 
+                                &zclZigmo_HumidityTaskID);
+      
+      
   // Set destination address to indirect
   zclZigmo_DstAddr.addrMode = (afAddrMode_t)AddrNotPresent;
   zclZigmo_DstAddr.endPoint = 0;
   zclZigmo_DstAddr.addr.shortAddr = 0;
 
+
   // Register the Simple Descriptor for this application
   bdb_RegisterSimpleDescriptor( &zclZigmo_SimpleDesc );
+  bdb_RegisterSimpleDescriptor( &zclZigmo_SimpleDesc2 );
+
+      bdb_RegisterSimpleDescriptor(&zclZigmo_endpoints[0].simpleDesc);
 
   // Register the ZCL General Cluster Library callback functions
   zclGeneral_RegisterCmdCallbacks( ZIGMO_ENDPOINT, &zclZigmo_CmdCallbacks );
+  zclGeneral_RegisterCmdCallbacks( ZIGMO_ENDPOINT2, &zclZigmo_CmdCallbacks );
+  
+      zclGeneral_RegisterCmdCallbacks( ZIGMO_FIRST_SENSOR_ENDPOINT, 
+                                    &zclZigmo_CmdCallbacks );
 
   zclZigmo_ResetAttributesToDefaultValues();
   
   // Register the application's attribute list
   zcl_registerAttrList( ZIGMO_ENDPOINT, zclZigmo_NumAttributes, zclZigmo_Attrs );
+  zcl_registerAttrList( ZIGMO_ENDPOINT2, zclZigmo_NumAttributes2, zclZigmo_Attrs2 );
+
+  
+      zcl_registerAttrList( ZIGMO_FIRST_SENSOR_ENDPOINT, 
+                         ZIGMO_NUM_SENSOR_ZCL_ATTR, 
+                         zclZigmo_endpoints[0].pAttrs );
 
   // Register the Application to receive the unprocessed Foundation command/response messages
   zcl_registerForMsg( zclZigmo_TaskID ); 
@@ -277,7 +298,7 @@ void zclZigmo_Init( byte task_id )
   zdpExternalStateTaskID = zclZigmo_TaskID;
   
   // Use the same task ID.
-  zclZigmo_InitMoistureSensors(task_id);
+  // zclZigmo_InitMoistureSensors(task_id);
 }
 
 
@@ -301,10 +322,10 @@ void zclZigmo_InitMoistureSensors( byte task_id )
                                     &zclZigmo_CmdCallbacks );
     
     zcl_registerAttrList( ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
-                         ZIGMO_MOISTURE_SENSOR_NUM_ATTR, 
-                         (CONST zclAttrRec_t*) zclZigmo_endpoints[i].attrs );
+                         ZIGMO_NUM_SENSOR_ZCL_ATTR, 
+                         zclZigmo_endpoints[i].pAttrs );
 
-    afRegister( &zclZigmo_endpoints[i].endpoint );
+    //afRegister( &zclZigmo_endpoints[i].endpoint );
     
     // tmp !
     zclZigmo_endpoints[i].measuredValue = 500 + (i * 100);

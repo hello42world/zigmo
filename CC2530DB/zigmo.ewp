@@ -5805,6 +5805,12 @@
     <group>
         <name>App</name>
         <file>
+            <name>$PROJ_DIR$\..\Source\moisture_sensor.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Source\moisture_sensor.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\Source\OSAL_zigmo.c</name>
         </file>
         <file>

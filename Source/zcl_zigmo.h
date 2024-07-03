@@ -51,12 +51,16 @@ extern "C"
  * INCLUDES
  */
 #include "zcl.h"
+#include "moisture_sensor.h"
 
 /*********************************************************************
  * CONSTANTS
  */
 #define ZIGMO_ENDPOINT               8
 #define ZIGMO_FIRST_SENSOR_ENDPOINT  9
+
+#define ZIGMO_ENDPOINT2              42
+
   
 #define LIGHT_OFF                       0x00
 #define LIGHT_ON                        0x01
@@ -66,33 +70,28 @@ extern "C"
 
 #define SAMPLEAPP_END_DEVICE_REJOIN_DELAY 10000
 
-#define NUM_SENSORS 12
+#define NUM_SENSORS 2
 /*********************************************************************
  * MACROS
  */
 /*********************************************************************
  * TYPEDEFS
  */
-#define ZIGMO_MOISTURE_SENSOR_NUM_ATTR 4
-
-typedef struct {
-  zclAttrRec_t attrs[ZIGMO_MOISTURE_SENSOR_NUM_ATTR];
-  SimpleDescriptionFormat_t simpleDesc;
-  endPointDesc_t endpoint;
-  
-  int16 measuredValue;
-} zigmoSensorEndpoint;
 
 /*********************************************************************
  * VARIABLES
  */
 extern SimpleDescriptionFormat_t zclZigmo_SimpleDesc;
+extern SimpleDescriptionFormat_t zclZigmo_SimpleDesc2;
 
 extern CONST zclAttrRec_t zclZigmo_Attrs[];
+extern CONST zclAttrRec_t zclZigmo_Attrs2[];
 
 extern uint16 zclZigmo_IdentifyTime;
 
 extern CONST uint8 zclZigmo_NumAttributes;
+extern CONST uint8 zclZigmo_NumAttributes2;
+
 
 extern zigmoSensorEndpoint zclZigmo_endpoints[NUM_SENSORS];
 /*********************************************************************

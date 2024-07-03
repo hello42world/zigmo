@@ -108,10 +108,7 @@ uint8 zclZigmo_DeviceEnable = DEVICE_ENABLED;
 uint16 zclZigmo_IdentifyTime = 0;
 
 // Temperature Sensor Cluster
-// int16 zclZigmoHumidity_MeasuredValue[NUM_SENSORS];
-
-const int16 zclZigmoHumidity_MinMeasuredValue = 0; 
-const int16 zclZigmoHumidity_MaxMeasuredValue = 10000;
+int16 zclZigmoHumidity_MeasuredValue;
 
 
 /*********************************************************************
@@ -245,53 +242,17 @@ CONST zclAttrRec_t zclZigmo_Attrs[] =
       (void *)&zclZigmo_clusterRevision_all
     }
   },
-  
 };
 uint8 CONST zclZigmo_NumAttributes = ( sizeof(zclZigmo_Attrs) / sizeof(zclZigmo_Attrs[0]) );
 
 // *** Relative humidity Cluster *** //
-/*
-CONST zclAttrRec_t zclZigmo_Attrs2[] = {
-  {
-    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
-    { // Attribute record
-      ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE,
-      ZCL_DATATYPE_INT16,
-      ACCESS_CONTROL_READ | ACCESS_REPORTABLE,
-      (void *)&zclZigmoHumidity_MeasuredValue
-    }
-  },
-  {
-    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
-    { // Attribute record
-      ATTRID_MS_RELATIVE_HUMIDITY_MIN_MEASURED_VALUE,
-      ZCL_DATATYPE_INT16,
-      ACCESS_CONTROL_READ,
-      (void *)&zclZigmoHumidity_MinMeasuredValue
-    }
-  },
-  {
-    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
-    { // Attribute record
-      ATTRID_MS_RELATIVE_HUMIDITY_MAX_MEASURED_VALUE,
-      ZCL_DATATYPE_INT16,
-      ACCESS_CONTROL_READ,
-      (void *)&zclZigmoHumidity_MaxMeasuredValue
-    }
-  },
 
-  {
-    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
-    {   // Attribute record
-      ATTRID_CLUSTER_REVISION,
-      ZCL_DATATYPE_UINT16,
-      ACCESS_CONTROL_READ,
-      (void *)&zclZigmo_clusterRevision_all
-    }
-  }
-};
+CONST zclAttrRec_t zclZigmo_Attrs2[] = 
+ ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmoHumidity_MeasuredValue);
+
 uint8 CONST zclZigmo_NumAttributes2 = ( sizeof(zclZigmo_Attrs2) / sizeof(zclZigmo_Attrs2[0]) );
-*/
+
+
 
 
 /*********************************************************************
@@ -333,7 +294,7 @@ SimpleDescriptionFormat_t zclZigmo_SimpleDesc =
  * SIMPLE DESCRIPTOR2
  */
 
-/*
+
 // This is the Cluster ID List and should be filled with Application
 // specific cluster IDs.
 const cId_t zclZigmo_InClusterList2[] =
@@ -357,9 +318,19 @@ SimpleDescriptionFormat_t zclZigmo_SimpleDesc2 =
   (cId_t *)NULL //  byte *pAppInClusterList;
 };
 
-*/
+
 
 zigmoSensorEndpoint zclZigmo_endpoints[NUM_SENSORS];
+
+CONST zclAttrRec_t zigmo_sensor_attrs[][ZIGMO_NUM_SENSOR_ZCL_ATTR] = {
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[0].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[1].measuredValue)
+};
+
+// Number of attrs in zigmo_sensor_attrs must == NUM_SENSORS
+STATIC_ASSERT(
+              (sizeof(zigmo_sensor_attrs) / sizeof(zclAttrRec_t) / ZIGMO_NUM_SENSOR_ZCL_ATTR) == NUM_SENSORS, 
+              num_attr_mismatch_w_sensors);
 
 /*********************************************************************
  * GLOBAL FUNCTIONS
@@ -368,18 +339,24 @@ zigmoSensorEndpoint zclZigmo_endpoints[NUM_SENSORS];
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
-
+const cId_t _InClusterList[] =
+{
+  ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY
+};
 
 void zclZigmo_InitSensorEndpoint(zigmoSensorEndpoint* ep, 
                                  uint8 endpointId,
                                  uint8* pTaskId) 
 {
+  ep->pAttrs = zigmo_sensor_attrs[endpointId - ZIGMO_FIRST_SENSOR_ENDPOINT];
+/*
   // Init attributes
   ep->attrs[0].clusterID = ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY;
   ep->attrs[0].attr.attrId = ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE;
   ep->attrs[0].attr.dataType = ZCL_DATATYPE_INT16;
   ep->attrs[0].attr.accessControl = ACCESS_CONTROL_READ | ACCESS_REPORTABLE;
-  ep->attrs[0].attr.dataPtr = (void*)&ep->measuredValue;
+  //ep->attrs[0].attr.dataPtr = (void*)&ep->measuredValue;
+  ep->attrs[0].attr.dataPtr = (void*)&zclZigmoHumidity_MeasuredValue;
   
   ep->attrs[1].clusterID = ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY;
   ep->attrs[1].attr.attrId = ATTRID_MS_RELATIVE_HUMIDITY_MIN_MEASURED_VALUE;
@@ -398,12 +375,10 @@ void zclZigmo_InitSensorEndpoint(zigmoSensorEndpoint* ep,
   ep->attrs[3].attr.dataType = ZCL_DATATYPE_UINT16;
   ep->attrs[3].attr.accessControl = ACCESS_CONTROL_READ;
   ep->attrs[3].attr.dataPtr = (void *)&zclZigmo_clusterRevision_all;
+*/
   
   // Init simple descriptor
-  static const cId_t _InClusterList[] =
-  {
-    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY
-  };
+
   
   ep->simpleDesc.EndPoint = endpointId;
   ep->simpleDesc.AppProfId = ZCL_HA_PROFILE_ID;
@@ -423,7 +398,7 @@ void zclZigmo_InitSensorEndpoint(zigmoSensorEndpoint* ep,
   ep->endpoint.latencyReq = noLatencyReqs;
     
   // Init measured value
-  ep->measuredValue = -1;
+  ep->measuredValue = 0;
 }
 
 
@@ -453,8 +428,10 @@ void zclZigmo_ResetAttributesToDefaultValues(void)
     
   for (i = 0; i < NUM_SENSORS; i++) 
   {
-    zclZigmo_endpoints[i].measuredValue = -1;
+    zclZigmo_endpoints[i].measuredValue = 1500;
   }
+  
+  zclZigmoHumidity_MeasuredValue = 1200;
 }
 
 /****************************************************************************
