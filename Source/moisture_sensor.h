@@ -3,6 +3,7 @@
 
 #include "zcl.h"
 #include "zcl_ms.h"
+#include "zcl_general.h"
 
 // Hi C
 
@@ -71,10 +72,13 @@ extern const int16 zclZigmoHumidity_MaxMeasuredValue;
 
 
 void zigmo_init_endpoint(ZigmoSensorEndpoint* ep,
-                         uint8 endpointId,
+                         uint8 endpoint_id,
                          uint8 device_version,
                          const zclAttrRec_t __code* attrs);
 
+ZStatus_t zigmo_register_endpoint(ZigmoSensorEndpoint* ep,
+                             uint8 endpoint_id,
+                             zclGeneral_AppCallbacks_t* cmd_callbacks);
 
 
 #endif

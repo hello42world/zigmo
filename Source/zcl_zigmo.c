@@ -326,15 +326,10 @@ void zclZigmo_InitMoistureSensors( byte task_id )
   {
     zclZigmo_InitSensorEndpoint(&zigmo_endpoints[i],
                                 ZIGMO_FIRST_SENSOR_ENDPOINT + i);
-    
-    bdb_RegisterSimpleDescriptor( &zigmo_endpoints[i].simpleDesc );
-    
-    zclGeneral_RegisterCmdCallbacks( ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
-                                    &zclZigmo_CmdCallbacks );
-    
-    zcl_registerAttrList( ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
-                         ZIGMO_NUM_SENSOR_ZCL_ATTR, 
-                         zigmo_endpoints[i].pAttrs );
+  
+    zigmo_register_endpoint(&zigmo_endpoints[i],
+                                ZIGMO_FIRST_SENSOR_ENDPOINT + i,
+                                &zclZigmo_CmdCallbacks);
   }
 }
 
