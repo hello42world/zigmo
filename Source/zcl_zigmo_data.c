@@ -287,12 +287,14 @@ zigmoSensorEndpoint zclZigmo_endpoints[ZIGMO_NUM_SENSORS];
 CONST zclAttrRec_t zigmo_sensor_attrs[][ZIGMO_NUM_SENSOR_ZCL_ATTR] = {
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[0].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[1].measuredValue),
+/*  
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[2].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[3].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[4].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[5].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[6].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[7].measuredValue),
+*/
 };
 
 // Number of attrs in zigmo_sensor_attrs must == NUM_SENSORS

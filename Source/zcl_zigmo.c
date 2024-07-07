@@ -94,8 +94,10 @@
 
 #include "bdb.h"
 #include "bdb_interface.h"
+//#include "bdb_Reporting.h"
 
-#include "zcl_sampleapps_ui.h"
+
+#include "DebugTrace.h"
 
 /*********************************************************************
  * MACROS
@@ -219,6 +221,17 @@ static zclGeneral_AppCallbacks_t zclZigmo_CmdCallbacks =
 };
 
 
+#if BDBREPORTING_MAX_ANALOG_ATTR_SIZE == 8
+  uint8 reportableChange[] = {0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; 
+#endif
+#if BDBREPORTING_MAX_ANALOG_ATTR_SIZE == 4
+  uint8 reportableChange[] = {0x64, 0x00, 0x00, 0x00}; 
+#endif 
+#if BDBREPORTING_MAX_ANALOG_ATTR_SIZE == 2
+  uint8 reportableChange[] = {0x64, 0x00};
+#endif 
+
+
 /*********************************************************************
  * @fn          zclZigmo_Init
  *
@@ -231,39 +244,24 @@ static zclGeneral_AppCallbacks_t zclZigmo_CmdCallbacks =
 void zclZigmo_Init( byte task_id )
 {
   zclZigmo_TaskID = task_id;
-  
-//  zclZigmo_HumidityTaskID = task_id;
-//  zclZigmo_InitSensorEndpoint(&zclZigmo_endpoints[0], 
-//                                ZIGMO_FIRST_SENSOR_ENDPOINT, 
-//                                &zclZigmo_HumidityTaskID);
-      
+     
       
   // Set destination address to indirect
   zclZigmo_DstAddr.addrMode = (afAddrMode_t)AddrNotPresent;
   zclZigmo_DstAddr.endPoint = 0;
   zclZigmo_DstAddr.addr.shortAddr = 0;
 
-
   // Register the Simple Descriptor for this application
   bdb_RegisterSimpleDescriptor( &zclZigmo_SimpleDesc );
-
-      //bdb_RegisterSimpleDescriptor(&zclZigmo_endpoints[0].simpleDesc);
 
   // Register the ZCL General Cluster Library callback functions
   zclGeneral_RegisterCmdCallbacks( ZIGMO_ENDPOINT, &zclZigmo_CmdCallbacks );
   
-      //zclGeneral_RegisterCmdCallbacks( ZIGMO_FIRST_SENSOR_ENDPOINT, 
-      //                             &zclZigmo_CmdCallbacks );
-
   zclZigmo_ResetAttributesToDefaultValues();
   
   // Register the application's attribute list
   zcl_registerAttrList( ZIGMO_ENDPOINT, zclZigmo_NumAttributes, zclZigmo_Attrs );
   
-      //zcl_registerAttrList( ZIGMO_FIRST_SENSOR_ENDPOINT, 
-      //                  ZIGMO_NUM_SENSOR_ZCL_ATTR, 
-      //                  zclZigmo_endpoints[0].pAttrs );
-
   // Register the Application to receive the unprocessed Foundation command/response messages
   zcl_registerForMsg( zclZigmo_TaskID ); 
   
@@ -295,6 +293,24 @@ void zclZigmo_Init( byte task_id )
   
   // Init the moistue sensors
   zclZigmo_InitMoistureSensors(task_id);
+  
+  // Registrer reportable attr
+  
+    for(int i = 0; i < ZIGMO_NUM_SENSORS; i++) 
+    {
+
+        uint8 status = bdb_RepAddAttrCfgRecordDefaultToList(
+                                       ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
+                                       ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY, 
+                                       ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE, 
+                                       0, 10, reportableChange);
+        if (status == ZSuccess) {
+          debug_str("reg ok");
+        }
+    }
+  
+  // Start timer
+  osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
 }
 
 
@@ -321,7 +337,7 @@ void zclZigmo_InitMoistureSensors( byte task_id )
                          ZIGMO_NUM_SENSOR_ZCL_ATTR, 
                          zclZigmo_endpoints[i].pAttrs );
 
-    //afRegister( &zclZigmo_endpoints[i].endpoint );
+    // afRegister( &zclZigmo_endpoints[i].endpoint );
     
     // tmp !
     zclZigmo_endpoints[i].measuredValue = 500 + (i * 100);
@@ -342,12 +358,26 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
 {
   afIncomingMSGPacket_t *MSGpkt;
   (void)task_id;  // Intentionally unreferenced parameter
-
-  //Send toggle every 500ms
+  
+  //Send toggle every 5s
   if( events & ZIGMO_TOGGLE_TEST_EVT )
   {
-    osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 500);
-    // zclGeneral_SendOnOff_CmdToggle( ZIGMO_ENDPOINT, &zclZigmo_DstAddr, FALSE, 0 );
+    osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
+    
+    for(int i = 0; i < ZIGMO_NUM_SENSORS; i++) 
+    {
+      uint8 status = bdb_RepChangedAttrValue(ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
+                                             ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY, 
+                                             ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE);
+      if (status != ZSuccess) {
+        debug_str("rep fail");
+      }
+      
+      zclZigmo_endpoints[i].measuredValue += (i + 1) *  100;
+      if (zclZigmo_endpoints[i].measuredValue >= zclZigmoHumidity_MaxMeasuredValue) {
+        zclZigmo_endpoints[i].measuredValue = zclZigmoHumidity_MinMeasuredValue;
+      }
+    }
     
     // return unprocessed events
     return (events ^ ZIGMO_TOGGLE_TEST_EVT);

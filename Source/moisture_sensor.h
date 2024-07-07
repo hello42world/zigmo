@@ -2,8 +2,13 @@
 #define ZIGMO_MOISTURE_SENSOR_H
 
 #include "zcl.h"
+#include "zcl_ms.h"
+
+// Hi C
 
 #define STATIC_ASSERT(COND,MSG) typedef char static_assertion_##MSG[(COND)?1:-1]
+
+// Defines
 
 #define ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(measured_val_ptr) \
 { \
