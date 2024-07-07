@@ -55,17 +55,26 @@
 // Typedefs
 
 typedef struct {
-  CONST zclAttrRec_t* pAttrs;
+  const __code zclAttrRec_t* pAttrs;
   SimpleDescriptionFormat_t simpleDesc;
-  endPointDesc_t endpoint;
   
   int16 measuredValue;
-} zigmoSensorEndpoint;
+} ZigmoSensorEndpoint;
 
 
 // Vars
 
 extern const int16 zclZigmoHumidity_MinMeasuredValue; 
 extern const int16 zclZigmoHumidity_MaxMeasuredValue;
+
+// Functions.
+
+
+void zigmo_init_endpoint(ZigmoSensorEndpoint* ep,
+                         uint8 endpointId,
+                         uint8 device_version,
+                         const zclAttrRec_t __code* attrs);
+
+
 
 #endif

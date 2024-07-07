@@ -282,18 +282,18 @@ SimpleDescriptionFormat_t zclZigmo_SimpleDesc =
 
 // Sensor array
 
-zigmoSensorEndpoint zclZigmo_endpoints[ZIGMO_NUM_SENSORS];
+ZigmoSensorEndpoint zigmo_endpoints[ZIGMO_NUM_SENSORS];
 
 CONST zclAttrRec_t zigmo_sensor_attrs[][ZIGMO_NUM_SENSOR_ZCL_ATTR] = {
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[0].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[1].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[0].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[1].measuredValue),
 /*  
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[2].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[3].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[4].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[5].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[6].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zclZigmo_endpoints[7].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[2].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[3].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[4].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[5].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[6].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[7].measuredValue),
 */
 };
 
@@ -309,38 +309,15 @@ STATIC_ASSERT(
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
-const cId_t _InClusterList[] =
-{
-  ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY
-};
 
-void zclZigmo_InitSensorEndpoint(zigmoSensorEndpoint* ep, 
-                                 uint8 endpointId,
-                                 uint8* pTaskId) 
-{
-  // Init attrs
-  ep->pAttrs = zigmo_sensor_attrs[endpointId - ZIGMO_FIRST_SENSOR_ENDPOINT];
-  
-  // Init simple descriptor
-  ep->simpleDesc.EndPoint = endpointId;
-  ep->simpleDesc.AppProfId = ZCL_HA_PROFILE_ID;
-  ep->simpleDesc.AppDeviceId = ZCL_HA_DEVICEID_SIMPLE_SENSOR;
-  ep->simpleDesc.AppDevVer = ZIGMO_DEVICE_VERSION;
-  ep->simpleDesc.Reserved = ZIGMO_FLAGS;
-  ep->simpleDesc.AppNumInClusters = 1;
-  ep->simpleDesc.pAppInClusterList = (cId_t*) _InClusterList;
-  ep->simpleDesc.AppNumOutClusters = 0;
-  ep->simpleDesc.pAppOutClusterList = NULL;
-  
-  // Init endpoint
-  ep->endpoint.endPoint = endpointId;
-  ep->endpoint.epType = 0;
-  ep->endpoint.task_id = pTaskId;
-  ep->endpoint.simpleDesc = NULL; // Why? We do have a simpledesc... 
-  ep->endpoint.latencyReq = noLatencyReqs;
-    
-  // Init measured value
-  ep->measuredValue = -1;
+void zclZigmo_InitSensorEndpoint(ZigmoSensorEndpoint* ep,
+                                 uint8 endpointId) 
+{ 
+  zigmo_init_endpoint(ep,
+                      endpointId,
+                      ZIGMO_DEVICE_VERSION,
+                      zigmo_sensor_attrs[endpointId - ZIGMO_FIRST_SENSOR_ENDPOINT]);
+ 
 }
 
 
@@ -370,7 +347,7 @@ void zclZigmo_ResetAttributesToDefaultValues(void)
     
   for (i = 0; i < ZIGMO_NUM_SENSORS; i++) 
   {
-    zclZigmo_endpoints[i].measuredValue = -1;
+    zigmo_endpoints[i].measuredValue = -1;
   }
 }
 

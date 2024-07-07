@@ -324,23 +324,17 @@ void zclZigmo_InitMoistureSensors( byte task_id )
   // Init sensor endpoint data structures
   for (i = 0; i < ZIGMO_NUM_SENSORS; i++) 
   {
-    zclZigmo_InitSensorEndpoint(&zclZigmo_endpoints[i], 
-                                ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
-                                &zclZigmo_HumidityTaskID);
+    zclZigmo_InitSensorEndpoint(&zigmo_endpoints[i],
+                                ZIGMO_FIRST_SENSOR_ENDPOINT + i);
     
-    bdb_RegisterSimpleDescriptor( &zclZigmo_endpoints[i].simpleDesc );
+    bdb_RegisterSimpleDescriptor( &zigmo_endpoints[i].simpleDesc );
     
     zclGeneral_RegisterCmdCallbacks( ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
                                     &zclZigmo_CmdCallbacks );
     
     zcl_registerAttrList( ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
                          ZIGMO_NUM_SENSOR_ZCL_ATTR, 
-                         zclZigmo_endpoints[i].pAttrs );
-
-    // afRegister( &zclZigmo_endpoints[i].endpoint );
-    
-    // tmp !
-    zclZigmo_endpoints[i].measuredValue = 500 + (i * 100);
+                         zigmo_endpoints[i].pAttrs );
   }
 }
 
@@ -373,9 +367,9 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
         debug_str("rep fail");
       }
       
-      zclZigmo_endpoints[i].measuredValue += (i + 1) *  100;
-      if (zclZigmo_endpoints[i].measuredValue >= zclZigmoHumidity_MaxMeasuredValue) {
-        zclZigmo_endpoints[i].measuredValue = zclZigmoHumidity_MinMeasuredValue;
+      zigmo_endpoints[i].measuredValue += (i + 1) *  100;
+      if (zigmo_endpoints[i].measuredValue >= zclZigmoHumidity_MaxMeasuredValue) {
+        zigmo_endpoints[i].measuredValue = zclZigmoHumidity_MinMeasuredValue;
       }
     }
     

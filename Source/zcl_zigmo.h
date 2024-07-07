@@ -80,18 +80,15 @@ extern "C"
  * VARIABLES
  */
 extern SimpleDescriptionFormat_t zclZigmo_SimpleDesc;
-extern SimpleDescriptionFormat_t zclZigmo_SimpleDesc2;
 
 extern CONST zclAttrRec_t zclZigmo_Attrs[];
-extern CONST zclAttrRec_t zclZigmo_Attrs2[];
 
 extern uint16 zclZigmo_IdentifyTime;
 
 extern CONST uint8 zclZigmo_NumAttributes;
-extern CONST uint8 zclZigmo_NumAttributes2;
 
 
-extern zigmoSensorEndpoint zclZigmo_endpoints[ZIGMO_NUM_SENSORS];
+extern ZigmoSensorEndpoint zigmo_endpoints[ZIGMO_NUM_SENSORS];
 /*********************************************************************
  * FUNCTIONS
  */
@@ -114,7 +111,7 @@ extern UINT16 zclZigmo_moisture_sensor_event_loop( byte task_id, UINT16 events )
  */
 extern void zclZigmo_ResetAttributesToDefaultValues(void); //implemented in zcl_zigmo_data.c
 
-extern void zclZigmo_InitSensorEndpoint(zigmoSensorEndpoint* ep, uint8 endpointId, uint8* pTaskId);
+extern void zclZigmo_InitSensorEndpoint(ZigmoSensorEndpoint* ep, uint8 endpointId);
 
 /*********************************************************************
 *********************************************************************/
