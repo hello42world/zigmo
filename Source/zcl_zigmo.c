@@ -221,15 +221,6 @@ static zclGeneral_AppCallbacks_t zclZigmo_CmdCallbacks =
 };
 
 
-#if BDBREPORTING_MAX_ANALOG_ATTR_SIZE == 8
-  uint8 reportableChange[] = {0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; 
-#endif
-#if BDBREPORTING_MAX_ANALOG_ATTR_SIZE == 4
-  uint8 reportableChange[] = {0x64, 0x00, 0x00, 0x00}; 
-#endif 
-#if BDBREPORTING_MAX_ANALOG_ATTR_SIZE == 2
-  uint8 reportableChange[] = {0x64, 0x00};
-#endif 
 
 
 /*********************************************************************
@@ -268,6 +259,8 @@ void zclZigmo_Init( byte task_id )
   // Register low voltage NV memory protection application callback
   RegisterVoltageWarningCB( zclSampleApp_BatteryWarningCB );
   
+  RegisterForKeys( zclZigmo_TaskID );
+  
   bdb_RegisterCommissioningStatusCB( zclZigmo_ProcessCommissioningStatus );
 
   // Register for a test endpoint
@@ -294,21 +287,6 @@ void zclZigmo_Init( byte task_id )
   // Init the moistue sensors
   zclZigmo_InitMoistureSensors(task_id);
   
-  // Registrer reportable attr
-  
-    for(int i = 0; i < ZIGMO_NUM_SENSORS; i++) 
-    {
-
-        uint8 status = bdb_RepAddAttrCfgRecordDefaultToList(
-                                       ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
-                                       ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY, 
-                                       ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE, 
-                                       0, 10, reportableChange);
-        if (status == ZSuccess) {
-          debug_str("reg ok");
-        }
-    }
-  
   // Start timer
   osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
 }
@@ -328,8 +306,9 @@ void zclZigmo_InitMoistureSensors( byte task_id )
                                 ZIGMO_FIRST_SENSOR_ENDPOINT + i);
   
     zigmo_register_endpoint(&zigmo_endpoints[i],
-                                ZIGMO_FIRST_SENSOR_ENDPOINT + i,
-                                &zclZigmo_CmdCallbacks);
+                            ZIGMO_FIRST_SENSOR_ENDPOINT + i,
+                            &zclZigmo_CmdCallbacks);
+    
   }
 }
 
@@ -346,7 +325,14 @@ void zclZigmo_InitMoistureSensors( byte task_id )
 uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
 {
   afIncomingMSGPacket_t *MSGpkt;
+  //uint8 k_k, k_s;
+  
   (void)task_id;  // Intentionally unreferenced parameter
+  
+  if (!P1_3)
+  {
+    debug_str("btn1_3");
+  }
   
   //Send toggle every 5s
   if( events & ZIGMO_TOGGLE_TEST_EVT )
@@ -355,13 +341,12 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
     
     for(int i = 0; i < ZIGMO_NUM_SENSORS; i++) 
     {
-      uint8 status = bdb_RepChangedAttrValue(ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
+      if(bdbAttributes.bdbNodeIsOnANetwork == TRUE) {
+
+        uint8 status = bdb_RepChangedAttrValue(ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
                                              ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY, 
                                              ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE);
-      if (status != ZSuccess) {
-        debug_str("rep fail");
       }
-      
       zigmo_endpoints[i].measuredValue += (i + 1) *  100;
       if (zigmo_endpoints[i].measuredValue >= zclZigmoHumidity_MaxMeasuredValue) {
         zigmo_endpoints[i].measuredValue = zclZigmoHumidity_MinMeasuredValue;
@@ -382,6 +367,15 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
         case ZCL_INCOMING_MSG:
           // Incoming ZCL Foundation command/response messages
           zclZigmo_ProcessIncomingMsg( (zclIncomingMsg_t *)MSGpkt );
+          break;
+
+        case KEY_CHANGE:
+/*
+          k_s = ((keyChange_t *)MSGpkt)->state; 
+          k_k = ((keyChange_t *)MSGpkt)->keys;
+*/
+          debug_str("key");
+
           break;
 
         case ZDO_STATE_CHANGE:
@@ -415,12 +409,6 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
 #endif
 
   // Discard unknown events
-  return 0;
-}
-
-UINT16 zclZigmo_moisture_sensor_event_loop( byte task_id, UINT16 events ) 
-{
-
   return 0;
 }
 

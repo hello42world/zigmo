@@ -1,13 +1,12 @@
 #ifndef ZIGMO_MOISTURE_SENSOR_H
 #define ZIGMO_MOISTURE_SENSOR_H
 
+#include "util.h"
+
 #include "zcl.h"
 #include "zcl_ms.h"
 #include "zcl_general.h"
 
-// Hi C
-
-#define STATIC_ASSERT(COND,MSG) typedef char static_assertion_##MSG[(COND)?1:-1]
 
 // Defines
 
@@ -77,8 +76,8 @@ void zigmo_init_endpoint(ZigmoSensorEndpoint* ep,
                          const zclAttrRec_t __code* attrs);
 
 ZStatus_t zigmo_register_endpoint(ZigmoSensorEndpoint* ep,
-                             uint8 endpoint_id,
-                             zclGeneral_AppCallbacks_t* cmd_callbacks);
+                                  uint8 endpoint_id,
+                                  zclGeneral_AppCallbacks_t* cmd_callbacks);
 
 
 #endif

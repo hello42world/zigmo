@@ -104,7 +104,6 @@ extern void zclZigmo_InitMoistureSensors( byte task_id );
  *  Event Process for the task
  */
 extern UINT16 zclZigmo_event_loop( byte task_id, UINT16 events );
-extern UINT16 zclZigmo_moisture_sensor_event_loop( byte task_id, UINT16 events );
 
 /*
  *  Reset all writable attributes to their default values.
