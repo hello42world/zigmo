@@ -1464,6 +1464,8 @@
                 <option>
                     <name>CCDefines</name>
                     <state>HAL_LCD=FALSE</state>
+                    <state>HAL_KEY=TRUE</state>
+                    <state>ISR_KEYINTERRUPT</state>
                     <state>SECURE=1</state>
                     <state>TC_LINKKEY_JOIN</state>
                     <state>NV_INIT</state>
@@ -2624,11 +2626,12 @@
                 </option>
                 <option>
                     <name>CCDefines</name>
+                    <state>BDB_REPORTING</state>
                     <state>SECURE=1</state>
                     <state>TC_LINKKEY_JOIN</state>
                     <state>NV_INIT</state>
                     <state>NV_RESTORE</state>
-                    <state>xPOWER_SAVING</state>
+                    <state>POWER_SAVING</state>
                     <state>NWK_AUTO_POLL</state>
                     <state>ZTOOL_P1</state>
                     <state>MT_TASK</state>
@@ -5806,6 +5809,9 @@
     <group>
         <name>App</name>
         <file>
+            <name>$PROJ_DIR$\..\Source\hal.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\Source\moisture_sensor.c</name>
         </file>
         <file>
@@ -5813,6 +5819,9 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\Source\OSAL_zigmo.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Source\util.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\Source\zcl_zigmo.c</name>
@@ -5902,45 +5911,6 @@
             </file>
         </group>
         <group>
-            <name>Include</name>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_adc.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_assert.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_board.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_defs.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_drivers.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_flash.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_key.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_lcd.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_led.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_sleep.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_timer.h</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_uart.h</name>
-            </file>
-        </group>
-        <group>
             <name>Target</name>
             <group>
                 <name>CC2530EB</name>
@@ -5963,6 +5933,9 @@
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\target\CC2530EB\hal_key.c</name>
+                        <excluded>
+                            <configuration>RouterEB</configuration>
+                        </excluded>
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\target\CC2530EB\hal_lcd.c</name>
@@ -6017,6 +5990,45 @@
                         <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\target\CC2530EB\hal_types.h</name>
                     </file>
                 </group>
+            </group>
+            <group>
+                <name>Include</name>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_adc.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_assert.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_board.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_defs.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_drivers.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_flash.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_key.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_lcd.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_led.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_sleep.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_timer.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\..\..\..\..\Components\hal\include\hal_uart.h</name>
+                </file>
             </group>
         </group>
     </group>
@@ -6418,16 +6430,16 @@
         </file>
     </group>
     <group>
-        <name>Services</name>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\Components\services\saddr\saddr.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\..\..\Components\services\saddr\saddr.h</name>
-        </file>
-    </group>
-    <group>
         <name>Tools</name>
+        <group>
+            <name>Services</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\Components\services\saddr\saddr.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\..\..\Components\services\saddr\saddr.h</name>
+            </file>
+        </group>
         <file>
             <name>$PROJ_DIR$\..\..\..\Tools\CC2530DB\f8w2530.xcl</name>
         </file>
