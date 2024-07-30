@@ -1,6 +1,5 @@
 
 #include "util.h"
-#include "hal.h"
 
 #include "hal_key.h"
 #include "hal_drivers.h"
@@ -10,12 +9,11 @@
 #  error "We need interrupts!"
 #endif
 
-#define ZIGMO_BTN1_BIT (1 << 3)
+#define ZIGMO_BTN1_BIT (1 << 3) // Button on P1.3
 #define HAL_KEY_DEBOUNCE_VALUE  25
 
 
 static halKeyCBack_t pHalKeyProcessFunction;
-// static uint8 HalKeyConfigured;
 bool Hal_KeyIntEnable;            /* interrupt enable/disable flag */
 
 
@@ -31,9 +29,6 @@ void HalKeyInit()
 
   /* Initialize callback function */
   pHalKeyProcessFunction  = NULL;
-
-  /* Start with key is not configured */
-  /* HalKeyConfigured = FALSE; */
 }
 
 void HalKeyConfig (bool interruptEnable, halKeyCBack_t cback)

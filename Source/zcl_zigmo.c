@@ -331,7 +331,7 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
   
   if (!P1_3)
   {
-    debug_str("btn1_3");
+    // debug_str("btn1_3");
   }
   
   //Send toggle every 5s
@@ -374,7 +374,8 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
           k_s = ((keyChange_t *)MSGpkt)->state; 
           k_k = ((keyChange_t *)MSGpkt)->keys;
 */
-          debug_str("key");
+          
+          debug_str(((keyChange_t *)MSGpkt)->keys != 0 ? "key 1" : "key 0");
 
           break;
 
