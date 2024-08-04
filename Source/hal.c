@@ -40,9 +40,9 @@ void HalKeyConfig (bool interruptEnable, halKeyCBack_t cback)
   pHalKeyProcessFunction = cback;
 
   /* Rising/Falling edge configuration */
-  PICTL |= 0x01; /* Port 1, inputs 3 to 0, falling edge */
+  PICTL |= 1 << 1; /* Port 1, inputs 3 to 0, falling edge */
 
-  /* Enable interrupt on pin 1.3 */
+  /* Enable interrupt on pin */
   P1IEN |= ZIGMO_BTN1_BIT; 
   
   /* Set P1IE in IEN2 to enable interrupts on port 1 */

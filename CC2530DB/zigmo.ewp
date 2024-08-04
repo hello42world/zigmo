@@ -1465,7 +1465,7 @@
                     <name>CCDefines</name>
                     <state>HAL_LCD=FALSE</state>
                     <state>HAL_KEY=TRUE</state>
-                    <state>ISR_KEYINTERRUPT</state>
+                    <state>xISR_KEYINTERRUPT</state>
                     <state>SECURE=1</state>
                     <state>TC_LINKKEY_JOIN</state>
                     <state>NV_INIT</state>
@@ -5810,6 +5810,12 @@
         <name>App</name>
         <file>
             <name>$PROJ_DIR$\..\Source\hal.c</name>
+            <excluded>
+                <configuration>RouterEB</configuration>
+            </excluded>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Source\hal2.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\Source\moisture_sensor.c</name>
