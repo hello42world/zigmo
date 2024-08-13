@@ -103,13 +103,18 @@
 
 #define HAL_KEY_DEBOUNCE_VALUE  25
 
+#define ZIGMO_BTN1_PIN 6
+#define ZIGMO_BTN_(pin) (P0_ ## pin)
+#define ZIGMO_BTN(pin) ZIGMO_BTN_(pin)
+#define ZIGMO_BTN1() (!ZIGMO_BTN(ZIGMO_BTN1_PIN))
+
 /* CPU port interrupt */
 #define HAL_KEY_CPU_PORT_0_IF P0IF
 #define HAL_KEY_CPU_PORT_2_IF P2IF
 
 /* SW_6 is at P0.1 */
 #define HAL_KEY_SW_6_PORT   P0
-#define HAL_KEY_SW_6_BIT    BV(1)
+#define HAL_KEY_SW_6_BIT    BV(ZIGMO_BTN1_PIN)
 #define HAL_KEY_SW_6_SEL    P0SEL
 #define HAL_KEY_SW_6_DIR    P0DIR
 
@@ -117,12 +122,11 @@
 #define HAL_KEY_SW_6_EDGEBIT  BV(0)
 #define HAL_KEY_SW_6_EDGE     HAL_KEY_FALLING_EDGE
 
-
 /* SW_6 interrupts */
 #define HAL_KEY_SW_6_IEN      IEN1  /* CPU interrupt mask register */ // entire port
 #define HAL_KEY_SW_6_IENBIT   BV(5) /* Mask bit for all of Port_0 */ // aka P0IE
 #define HAL_KEY_SW_6_ICTL     P0IEN /* Port Interrupt Control register */
-#define HAL_KEY_SW_6_ICTLBIT  BV(1) /* P0IEN - P0.1 enable/disable bit */
+#define HAL_KEY_SW_6_ICTLBIT  BV(ZIGMO_BTN1_PIN) /* P0IEN - P0.ZIGMO_BTN1_PIN enable/disable bit */
 #define HAL_KEY_SW_6_PXIFG    P0IFG /* Interrupt flag at source */
 
 /* Joy stick move at P2.0 */
@@ -200,6 +204,11 @@ void HalKeyInit( void )
 
   /* Start with key is not configured */
   HalKeyConfigured = FALSE;
+  
+  // Set P1_1 to GPIO
+  P1SEL &= ~(1 << 1);
+  // Set P1_1 direction to Output.
+  P1DIR |= (1 << 1);
 }
 
 
@@ -295,7 +304,7 @@ uint8 HalKeyRead ( void )
 {
   uint8 keys = 0;
 
-  if (HAL_PUSH_BUTTON1())
+  if (ZIGMO_BTN1())
   {
     keys |= HAL_KEY_SW_6;
   }
@@ -344,8 +353,8 @@ void HalKeyPoll (void)
   {
     /* Key interrupt handled here */
   }
-
-  if (HAL_PUSH_BUTTON1())
+  
+  if (ZIGMO_BTN1())
   {
     keys |= HAL_KEY_SW_6;
   }

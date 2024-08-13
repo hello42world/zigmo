@@ -374,8 +374,14 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
           k_s = ((keyChange_t *)MSGpkt)->state; 
           k_k = ((keyChange_t *)MSGpkt)->keys;
 */
-          
-          debug_str(((keyChange_t *)MSGpkt)->keys != 0 ? "key 1" : "key 0");
+          if (((keyChange_t *)MSGpkt)->keys & HAL_KEY_SW_6) {
+            debug_str("+++");
+            
+            // Set it high.
+            P1_1 = 1;
+          } else {
+            debug_str("---");
+          }
 
           break;
 
