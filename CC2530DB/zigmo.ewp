@@ -5809,12 +5809,6 @@
     <group>
         <name>App</name>
         <file>
-            <name>$PROJ_DIR$\..\Source\hal.c</name>
-            <excluded>
-                <configuration>RouterEB</configuration>
-            </excluded>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\Source\hal2.c</name>
         </file>
         <file>
