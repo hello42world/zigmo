@@ -289,6 +289,8 @@ void zclZigmo_Init( byte task_id )
   
   // Start timer
   osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
+  
+  
 }
 
 
@@ -329,10 +331,6 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
   
   (void)task_id;  // Intentionally unreferenced parameter
   
-  if (!P1_3)
-  {
-    // debug_str("btn1_3");
-  }
   
   //Send toggle every 5s
   if( events & ZIGMO_TOGGLE_TEST_EVT )

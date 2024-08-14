@@ -103,7 +103,7 @@
 
 #define HAL_KEY_DEBOUNCE_VALUE  25
 
-#define ZIGMO_BTN1_PIN 6
+#define ZIGMO_BTN1_PIN 7
 #define ZIGMO_BTN_(pin) (P0_ ## pin)
 #define ZIGMO_BTN(pin) ZIGMO_BTN_(pin)
 #define ZIGMO_BTN1() (!ZIGMO_BTN(ZIGMO_BTN1_PIN))
@@ -112,22 +112,22 @@
 #define HAL_KEY_CPU_PORT_0_IF P0IF
 #define HAL_KEY_CPU_PORT_2_IF P2IF
 
-/* SW_6 is at P0.1 */
-#define HAL_KEY_SW_6_PORT   P0
-#define HAL_KEY_SW_6_BIT    BV(ZIGMO_BTN1_PIN)
-#define HAL_KEY_SW_6_SEL    P0SEL
-#define HAL_KEY_SW_6_DIR    P0DIR
+/* BTN1 is at P0 */
+#define HAL_ZIGMO_BTN1_PORT   P0
+#define HAL_ZIGMO_BTN1_BIT    BV(ZIGMO_BTN1_PIN)
+#define HAL_ZIGMO_BTN1_SEL    P0SEL
+#define HAL_ZIGMO_BTN1_DIR    P0DIR
 
 /* edge interrupt */
-#define HAL_KEY_SW_6_EDGEBIT  BV(0)
-#define HAL_KEY_SW_6_EDGE     HAL_KEY_FALLING_EDGE
+#define HAL_ZIGMO_BTN1_EDGEBIT  BV(0)
+#define HAL_ZIGMO_BTN1_EDGE     HAL_KEY_FALLING_EDGE
 
 /* SW_6 interrupts */
-#define HAL_KEY_SW_6_IEN      IEN1  /* CPU interrupt mask register */ // entire port
-#define HAL_KEY_SW_6_IENBIT   BV(5) /* Mask bit for all of Port_0 */ // aka P0IE
-#define HAL_KEY_SW_6_ICTL     P0IEN /* Port Interrupt Control register */
-#define HAL_KEY_SW_6_ICTLBIT  BV(ZIGMO_BTN1_PIN) /* P0IEN - P0.ZIGMO_BTN1_PIN enable/disable bit */
-#define HAL_KEY_SW_6_PXIFG    P0IFG /* Interrupt flag at source */
+#define HAL_ZIGMO_BTN1_IEN      IEN1  /* CPU interrupt mask register */ // entire port
+#define HAL_ZIGMO_BTN1_IENBIT   BV(5) /* Mask bit for all of Port_0 */ // aka P0IE
+#define HAL_ZIGMO_BTN1_ICTL     P0IEN /* Port Interrupt Control register */
+#define HAL_ZIGMO_BTN1_ICTLBIT  BV(ZIGMO_BTN1_PIN) /* P0IEN - P0.ZIGMO_BTN1_PIN enable/disable bit */
+#define HAL_ZIGMO_BTN1_PXIFG    P0IFG /* Interrupt flag at source */
 
 /* Joy stick move at P2.0 */
 #define HAL_KEY_JOY_MOVE_PORT   P2
@@ -189,16 +189,17 @@ void HalKeyInit( void )
   /* Initialize previous key to 0 */
   halKeySavedKeys = 0;
 
-  HAL_KEY_SW_6_SEL &= ~(HAL_KEY_SW_6_BIT);    /* Set pin function to GPIO */
+  HAL_ZIGMO_BTN1_SEL &= ~(HAL_ZIGMO_BTN1_BIT);    /* Set pin function to GPIO */
+  HAL_ZIGMO_BTN1_DIR &= ~(HAL_ZIGMO_BTN1_BIT);    /* Set pin direction to Input */
 
-#if ! defined ENABLE_LED4_DISABLE_S1
-  HAL_KEY_SW_6_DIR &= ~(HAL_KEY_SW_6_BIT);    /* Set pin direction to Input */
-#endif
-
+//  P0INP &= ~(HAL_ZIGMO_BTN1_BIT);
+//  P2INP &= ~(1 << 5); // pullup
+  
   HAL_KEY_JOY_MOVE_SEL &= ~(HAL_KEY_JOY_MOVE_BIT); /* Set pin function to GPIO */
   HAL_KEY_JOY_MOVE_DIR &= ~(HAL_KEY_JOY_MOVE_BIT); /* Set pin direction to Input */
 
 
+  
   /* Initialize callback function */
   pHalKeyProcessFunction  = NULL;
 
@@ -235,10 +236,10 @@ void HalKeyConfig (bool interruptEnable, halKeyCBack_t cback)
   {
     /* Rising/Falling edge configuratinn */
 
-    PICTL &= ~(HAL_KEY_SW_6_EDGEBIT);    /* Clear the edge bit */
+    PICTL &= ~(HAL_ZIGMO_BTN1_EDGEBIT);    /* Clear the edge bit */
     /* For falling edge, the bit must be set. */
-  #if (HAL_KEY_SW_6_EDGE == HAL_KEY_FALLING_EDGE)
-    PICTL |= HAL_KEY_SW_6_EDGEBIT;
+  #if (HAL_ZIGMO_BTN1_EDGE == HAL_KEY_FALLING_EDGE)
+    PICTL |= HAL_ZIGMO_BTN1_EDGEBIT;
   #endif
 
 
@@ -247,11 +248,9 @@ void HalKeyConfig (bool interruptEnable, halKeyCBack_t cback)
      * - Enable CPU interrupt
      * - Clear any pending interrupt
      */
-    HAL_KEY_SW_6_ICTL |= HAL_KEY_SW_6_ICTLBIT;
-    HAL_KEY_SW_6_IEN |= HAL_KEY_SW_6_IENBIT; // entire port
-    HAL_KEY_SW_6_PXIFG = ~(HAL_KEY_SW_6_BIT);
-
-
+    HAL_ZIGMO_BTN1_ICTL |= HAL_ZIGMO_BTN1_ICTLBIT;
+    HAL_ZIGMO_BTN1_IEN |= HAL_ZIGMO_BTN1_IENBIT; // entire port
+    HAL_ZIGMO_BTN1_PXIFG = ~(HAL_ZIGMO_BTN1_BIT);
 
     /* Rising/Falling edge configuratinn */
 
@@ -280,8 +279,8 @@ void HalKeyConfig (bool interruptEnable, halKeyCBack_t cback)
   }
   else    /* Interrupts NOT enabled */
   {
-    HAL_KEY_SW_6_ICTL &= ~(HAL_KEY_SW_6_ICTLBIT); /* don't generate interrupt */
-    HAL_KEY_SW_6_IEN &= ~(HAL_KEY_SW_6_IENBIT);   /* Clear interrupt enable bit */
+    HAL_ZIGMO_BTN1_ICTL &= ~(HAL_ZIGMO_BTN1_ICTLBIT); /* don't generate interrupt */
+    HAL_ZIGMO_BTN1_IEN &= ~(HAL_ZIGMO_BTN1_IENBIT);   /* Clear interrupt enable bit */
 
     osal_set_event(Hal_TaskID, HAL_KEY_EVENT);
   }
@@ -336,6 +335,11 @@ void HalKeyPoll (void)
     keys = halGetJoyKeyInput();
   }
 
+  if (ZIGMO_BTN1())
+  {
+    keys |= HAL_KEY_SW_6;
+  }
+  
   /* If interrupts are not enabled, previous key status and current key status
    * are compared to find out if a key has changed status.
    */
@@ -354,10 +358,6 @@ void HalKeyPoll (void)
     /* Key interrupt handled here */
   }
   
-  if (ZIGMO_BTN1())
-  {
-    keys |= HAL_KEY_SW_6;
-  }
 
   /* Invoke Callback if new keys were depressed */
   if (pHalKeyProcessFunction
@@ -438,9 +438,9 @@ void halProcessKeyInterrupt (void)
 {
   bool valid=FALSE;
 
-  if (HAL_KEY_SW_6_PXIFG & HAL_KEY_SW_6_BIT)  /* Interrupt Flag has been set */
+  if (HAL_ZIGMO_BTN1_PXIFG & HAL_ZIGMO_BTN1_BIT)  /* Interrupt Flag has been set */
   {
-    HAL_KEY_SW_6_PXIFG = ~(HAL_KEY_SW_6_BIT); /* Clear Interrupt Flag */
+    HAL_ZIGMO_BTN1_PXIFG = ~(HAL_ZIGMO_BTN1_BIT); /* Clear Interrupt Flag */
     valid = TRUE;
   }
 
@@ -501,7 +501,7 @@ HAL_ISR_FUNCTION( halKeyPort0Isr, P0INT_VECTOR )
 {
   HAL_ENTER_ISR();
 
-  if (HAL_KEY_SW_6_PXIFG & HAL_KEY_SW_6_BIT)
+  if (HAL_ZIGMO_BTN1_PXIFG & HAL_ZIGMO_BTN1_BIT)
   {
     halProcessKeyInterrupt();
   }
@@ -510,7 +510,7 @@ HAL_ISR_FUNCTION( halKeyPort0Isr, P0INT_VECTOR )
     Clear the CPU interrupt flag for Port_0
     PxIFG has to be cleared before PxIF
   */
-  HAL_KEY_SW_6_PXIFG = 0;
+  HAL_ZIGMO_BTN1_PXIFG = 0;
   HAL_KEY_CPU_PORT_0_IF = 0;
   
   CLEAR_SLEEP_MODE();
