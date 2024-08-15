@@ -5384,6 +5384,12 @@
     <group>
         <name>App</name>
         <file>
+            <name>$PROJ_DIR$\..\Source\button.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Source\button.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\Source\hal2.c</name>
         </file>
         <file>

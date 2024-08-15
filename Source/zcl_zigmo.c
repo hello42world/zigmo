@@ -43,7 +43,7 @@
   This application is based on the common sample-application user interface. Please see the main
   comment in zcl_sampleapp_ui.c. The rest of this comment describes only the content specific for
   this sample applicetion.
-  
+
   Application-specific UI peripherals being used:
 
   - none (LED1 is currently unused by this application).
@@ -51,7 +51,7 @@
   Application-specific menu system:
 
     <TOGGLE LIGHT> Send an On, Off or Toggle command targeting appropriate devices from the binding table.
-      Pressing / releasing [OK] will have the following functionality, depending on the value of the 
+      Pressing / releasing [OK] will have the following functionality, depending on the value of the
       zclZigmo_OnOffSwitchActions attribute:
       - OnOffSwitchActions == 0: pressing [OK] will send ON command, releasing it will send OFF command;
       - OnOffSwitchActions == 1: pressing [OK] will send OFF command, releasing it will send ON command;
@@ -94,11 +94,10 @@
 
 #include "bdb.h"
 #include "bdb_interface.h"
-//#include "bdb_Reporting.h"
-
 
 #include "DebugTrace.h"
 
+#include "button.h"
 /*********************************************************************
  * MACROS
  */
@@ -178,7 +177,7 @@ static void zclSampleApp_BatteryWarningCB( uint8 voltLevel);
 /*********************************************************************
  * CONSTANTS
  */
-  
+
 /*********************************************************************
  * REFERENCED EXTERNALS
  */
@@ -235,8 +234,8 @@ static zclGeneral_AppCallbacks_t zclZigmo_CmdCallbacks =
 void zclZigmo_Init( byte task_id )
 {
   zclZigmo_TaskID = task_id;
-     
-      
+
+
   // Set destination address to indirect
   zclZigmo_DstAddr.addrMode = (afAddrMode_t)AddrNotPresent;
   zclZigmo_DstAddr.endPoint = 0;
@@ -247,25 +246,25 @@ void zclZigmo_Init( byte task_id )
 
   // Register the ZCL General Cluster Library callback functions
   zclGeneral_RegisterCmdCallbacks( ZIGMO_ENDPOINT, &zclZigmo_CmdCallbacks );
-  
+
   zclZigmo_ResetAttributesToDefaultValues();
-  
+
   // Register the application's attribute list
   zcl_registerAttrList( ZIGMO_ENDPOINT, zclZigmo_NumAttributes, zclZigmo_Attrs );
-  
+
   // Register the Application to receive the unprocessed Foundation command/response messages
-  zcl_registerForMsg( zclZigmo_TaskID ); 
-  
+  zcl_registerForMsg( zclZigmo_TaskID );
+
   // Register low voltage NV memory protection application callback
   RegisterVoltageWarningCB( zclSampleApp_BatteryWarningCB );
-  
+
   RegisterForKeys( zclZigmo_TaskID );
-  
+
   bdb_RegisterCommissioningStatusCB( zclZigmo_ProcessCommissioningStatus );
 
   // Register for a test endpoint
   afRegister( &zigmo_TestEp );
-  
+
 #ifdef ZCL_DIAGNOSTIC
   // Register the application's callback function to read/write attribute data.
   // This is only required when the attribute data format is unknown to ZCL.
@@ -283,34 +282,35 @@ void zclZigmo_Init( byte task_id )
 #endif
 
   zdpExternalStateTaskID = zclZigmo_TaskID;
-  
+
   // Init the moistue sensors
   zclZigmo_InitMoistureSensors(task_id);
-  
+
+  // Init buttons
+  zigmo_buttons_init(zclZigmo_TaskID);
+
   // Start timer
   osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
-  
-  
 }
 
 
 void zclZigmo_InitMoistureSensors( byte task_id )
 {
   int i;
-  
+
   // Init taskId
   zclZigmo_HumidityTaskID = task_id;
-  
+
   // Init sensor endpoint data structures
-  for (i = 0; i < ZIGMO_NUM_SENSORS; i++) 
+  for (i = 0; i < ZIGMO_NUM_SENSORS; i++)
   {
     zclZigmo_InitSensorEndpoint(&zigmo_endpoints[i],
                                 ZIGMO_FIRST_SENSOR_ENDPOINT + i);
-  
+
     zigmo_register_endpoint(&zigmo_endpoints[i],
                             ZIGMO_FIRST_SENSOR_ENDPOINT + i,
                             &zclZigmo_CmdCallbacks);
-    
+
   }
 }
 
@@ -327,22 +327,29 @@ void zclZigmo_InitMoistureSensors( byte task_id )
 uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
 {
   afIncomingMSGPacket_t *MSGpkt;
+  uint8 btn_0_pressed = 0;
   //uint8 k_k, k_s;
-  
+
   (void)task_id;  // Intentionally unreferenced parameter
-  
-  
+
+  if (events & ZIGMO_BTN_OSAL_EVT)
+  {
+    zigmo_button_process_osal_evt(events);
+
+    return (events & ~ZIGMO_BTN_OSAL_EVT_MASK);
+  }
+
   //Send toggle every 5s
   if( events & ZIGMO_TOGGLE_TEST_EVT )
   {
     osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
-    
-    for(int i = 0; i < ZIGMO_NUM_SENSORS; i++) 
+
+    for(int i = 0; i < ZIGMO_NUM_SENSORS; i++)
     {
       if(bdbAttributes.bdbNodeIsOnANetwork == TRUE) {
 
-        uint8 status = bdb_RepChangedAttrValue(ZIGMO_FIRST_SENSOR_ENDPOINT + i, 
-                                             ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY, 
+        uint8 status = bdb_RepChangedAttrValue(ZIGMO_FIRST_SENSOR_ENDPOINT + i,
+                                             ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
                                              ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE);
       }
       zigmo_endpoints[i].measuredValue += (i + 1) *  100;
@@ -350,12 +357,12 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
         zigmo_endpoints[i].measuredValue = zclZigmoHumidity_MinMeasuredValue;
       }
     }
-    
+
     // return unprocessed events
     return (events ^ ZIGMO_TOGGLE_TEST_EVT);
   }
-  
-  
+
+
   if ( events & SYS_EVENT_MSG )
   {
     while ( (MSGpkt = (afIncomingMSGPacket_t *)osal_msg_receive( zclZigmo_TaskID )) )
@@ -368,19 +375,15 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
           break;
 
         case KEY_CHANGE:
-/*
-          k_s = ((keyChange_t *)MSGpkt)->state; 
-          k_k = ((keyChange_t *)MSGpkt)->keys;
-*/
-          if (((keyChange_t *)MSGpkt)->keys & HAL_KEY_SW_6) {
-            debug_str("+++");
-            
-            // Set it high.
-            P1_1 = 1;
-          } else {
-            debug_str("---");
-          }
+          btn_0_pressed = ((keyChange_t *)MSGpkt)->keys & HAL_KEY_SW_6;
+          zigmo_button_notify_hw_state(ZIGMO_BTN_0, (bool)btn_0_pressed);
+          // Set it high.
+          // P1_1 = 1;
+          break;
 
+        case ZIGMO_BTN_CHANGE:
+          debug_str("Long press");
+          P1_1 = !P1_1; // toggle led
           break;
 
         case ZDO_STATE_CHANGE:
@@ -405,7 +408,7 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
     return (events ^ SYS_EVENT_MSG);
   }
 
-#if ZG_BUILD_ENDDEVICE_TYPE    
+#if ZG_BUILD_ENDDEVICE_TYPE
   if ( events & SAMPLEAPP_END_DEVICE_REJOIN_EVT )
   {
     bdb_ZedAttemptRecoverNwk();
@@ -469,14 +472,14 @@ static void zclZigmo_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbCo
       }
     break;
     case BDB_COMMISSIONING_INITIALIZATION:
-      //Initialization notification can only be successful. Failure on initialization 
+      //Initialization notification can only be successful. Failure on initialization
       //only happens for ZED and is notified as BDB_COMMISSIONING_PARENT_LOST notification
-      
+
       //YOUR JOB:
       //We are on a network, what now?
-      
+
     break;
-#if ZG_BUILD_ENDDEVICE_TYPE    
+#if ZG_BUILD_ENDDEVICE_TYPE
     case BDB_COMMISSIONING_PARENT_LOST:
       if(bdbCommissioningModeMsg->bdbCommissioningStatus == BDB_COMMISSIONING_NETWORK_RESTORED)
       {
@@ -488,9 +491,9 @@ static void zclZigmo_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbCo
         osal_start_timerEx(zclZigmo_TaskID, SAMPLEAPP_END_DEVICE_REJOIN_EVT, SAMPLEAPP_END_DEVICE_REJOIN_DELAY);
       }
     break;
-#endif 
+#endif
   }
-  
+
   // UI_UpdateComissioningStatus(bdbCommissioningModeMsg);
 }
 
@@ -786,7 +789,7 @@ static void zclZigmo_ProcessOTAMsgs( zclOTA_CallbackMsg_t* pMsg )
     }
     else
     {
-#if (ZG_BUILD_ENDDEVICE_TYPE)    
+#if (ZG_BUILD_ENDDEVICE_TYPE)
       // slow the poll rate back down.
       RxOnIdle = FALSE;
       ZMacSetReq( ZMacRxOnIdle, &RxOnIdle );
