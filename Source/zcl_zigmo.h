@@ -59,7 +59,7 @@ extern "C"
 #define ZIGMO_ENDPOINT               8
 #define ZIGMO_FIRST_SENSOR_ENDPOINT  9
 
-  
+
 #define LIGHT_OFF                       0x00
 #define LIGHT_ON                        0x01
 
@@ -97,8 +97,8 @@ extern ZigmoSensorEndpoint zigmo_endpoints[ZIGMO_NUM_SENSORS];
   * Initialization for the task
   */
 extern void zclZigmo_Init( byte task_id );
-
 extern void zclZigmo_InitMoistureSensors( byte task_id );
+extern void zclZigmo_JoinNetwork(void);
 
 /*
  *  Event Process for the task

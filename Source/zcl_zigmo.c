@@ -66,6 +66,9 @@
 /*********************************************************************
  * INCLUDES
  */
+#include "zcl_zigmo.h"
+
+
 #include "ZComDef.h"
 #include "OSAL.h"
 #include "AF.h"
@@ -77,7 +80,6 @@
 #include "zcl.h"
 #include "zcl_general.h"
 #include "zcl_ha.h"
-#include "zcl_zigmo.h"
 #include "zcl_diagnostic.h"
 
 #include "onboard.h"
@@ -289,6 +291,9 @@ void zclZigmo_Init( byte task_id )
   // Init buttons
   zigmo_buttons_init(zclZigmo_TaskID);
 
+  // Rejoin the network.
+  bdb_StartCommissioning(BDB_COMMISSIONING_REJOIN_EXISTING_NETWORK_ON_STARTUP);
+
   // Start timer
   osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
 }
@@ -315,6 +320,16 @@ void zclZigmo_InitMoistureSensors( byte task_id )
 }
 
 
+void zclZigmo_JoinNetwork(void)
+{
+  // -DDEFAULT_CHANLIST=0x00008000  // 15 - 0x0F
+  // -DDEFAULT_CHANLIST=0x00100000  // 20 - 0x14
+  // -DDEFAULT_CHANLIST=0x02000000  // 25 - 0x19
+  bdb_setChannelAttribute(true, 0x02108000);
+  bdb_setChannelAttribute(false, 0);
+  bdb_StartCommissioning(BDB_COMMISSIONING_MODE_NWK_STEERING);
+}
+
 /*********************************************************************
  * @fn          zclSample_event_loop
  *
@@ -340,17 +355,18 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
   }
 
   //Send toggle every 5s
-  if( events & ZIGMO_TOGGLE_TEST_EVT )
+  if (events & ZIGMO_TOGGLE_TEST_EVT)
   {
     osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
 
-    for(int i = 0; i < ZIGMO_NUM_SENSORS; i++)
+    for (int i = 0; i < ZIGMO_NUM_SENSORS; i++)
     {
-      if(bdbAttributes.bdbNodeIsOnANetwork == TRUE) {
+      if (bdbAttributes.bdbNodeIsOnANetwork == TRUE) {
 
         uint8 status = bdb_RepChangedAttrValue(ZIGMO_FIRST_SENSOR_ENDPOINT + i,
                                              ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
                                              ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE);
+        debug_str(status == ZSuccess ? "rep ok" : "rep fail");
       }
       zigmo_endpoints[i].measuredValue += (i + 1) *  100;
       if (zigmo_endpoints[i].measuredValue >= zclZigmoHumidity_MaxMeasuredValue) {
@@ -377,13 +393,21 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
         case KEY_CHANGE:
           btn_0_pressed = ((keyChange_t *)MSGpkt)->keys & HAL_KEY_SW_6;
           zigmo_button_notify_hw_state(ZIGMO_BTN_0, (bool)btn_0_pressed);
-          // Set it high.
-          // P1_1 = 1;
           break;
 
         case ZIGMO_BTN_CHANGE:
-          debug_str("Long press");
-          P1_1 = !P1_1; // toggle led
+          if (bdbAttributes.bdbCommissioningStatus != BDB_COMMISSIONING_IN_PROGRESS/* &&
+              bdbAttributes.bdbNodeIsOnANetwork == false*/)
+          {
+            debug_str("Joining..");
+            zclZigmo_JoinNetwork();
+          }
+          else
+          {
+            debug_str("In progr or on nwk");
+          }
+          // P1_1 = !P1_1; // toggle led
+
           break;
 
         case ZDO_STATE_CHANGE:
