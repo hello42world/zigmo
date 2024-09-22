@@ -300,13 +300,6 @@ void zclZigmo_Init( byte task_id )
 
   HalAdcSetReference(HAL_ADC_REF_125V);
 
-
-//  P1_0 = 1;
-//  P1_1 = 1;
-
-  P1_2 = 0;
-  P1_3 = 0;
-
 }
 
 
@@ -341,35 +334,6 @@ void zclZigmo_JoinNetwork(void)
   bdb_StartCommissioning(BDB_COMMISSIONING_MODE_NWK_STEERING);
 }
 
-#define ZIGMO_DELAY()   st( { volatile uint32 i; for (i=0; i<0x4000; i++) { }; } )
-
-
-uint8 zigmo_read_ms(void)
-{
-  P1_0 = 1; // power on
-  P1_1 = 1;
-  ZIGMO_DELAY();
-
-  uint16 adc;
-  uint8 ksave0 = 0;
-
-  /* Keep on reading the ADC until two consecutive key decisions are the same. */
-  do
-  {
-    ksave0 = adc;
-    adc = HalAdcRead (HAL_ADC_CHN_AIN4, HAL_ADC_RESOLUTION_10);
-  } while (adc != ksave0);
-
-
-  P1_0 = 0; // power off
-  P1_1 = 0;
-
-  uint8 buf[8];
-  _itoa(adc, buf, 10);
-  debug_str(buf);
-
-  return adc;
-}
 
 /*********************************************************************
  * @fn          zclSample_event_loop
@@ -398,7 +362,8 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
   if (events & ZIGMO_TOGGLE_TEST_EVT)
   {
     osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
-    zigmo_read_ms();
+    zigmo_sensor_read(1);
+
 /*
     for (int i = 0; i < ZIGMO_NUM_SENSORS; i++)
     {
@@ -412,7 +377,7 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
       }
 
     }
-//*/
+*/
     // return unprocessed events
     return (events ^ ZIGMO_TOGGLE_TEST_EVT);
   }
