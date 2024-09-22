@@ -206,10 +206,27 @@ void HalKeyInit( void )
   /* Start with key is not configured */
   HalKeyConfigured = FALSE;
   
+
+  // Set P1_0 to GPIO
+  P1SEL &= ~(1 << 0);
+  // Set P1_0 direction to Output.
+  P1DIR |= (1 << 0);
+
   // Set P1_1 to GPIO
   P1SEL &= ~(1 << 1);
   // Set P1_1 direction to Output.
   P1DIR |= (1 << 1);
+
+  // Set P1_2 to GPIO
+  P1SEL &= ~(1 << 2);
+  // Set P1_1 direction to Output.
+  P1DIR |= (1 << 2);
+
+  // Set P1_3 to GPIO
+  P1SEL &= ~(1 << 3);
+  // Set P1_3 direction to Output.
+  P1DIR |= (1 << 3);
+
 }
 
 
@@ -332,7 +349,8 @@ void HalKeyPoll (void)
 
   if ((HAL_KEY_JOY_MOVE_PORT & HAL_KEY_JOY_MOVE_BIT))  /* Key is active HIGH */
   {
-    keys = halGetJoyKeyInput();
+    // keys = halGetJoyKeyInput();
+    HalAdcRead (HAL_ADC_CHN_AIN6, HAL_ADC_RESOLUTION_8);
   }
 
   if (HAL_ZIGMO_BTN1())

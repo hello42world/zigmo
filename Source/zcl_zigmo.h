@@ -68,7 +68,7 @@ extern "C"
 
 #define SAMPLEAPP_END_DEVICE_REJOIN_DELAY 10000
 
-#define ZIGMO_NUM_SENSORS 2
+#define ZIGMO_NUM_SENSORS 1
 /*********************************************************************
  * MACROS
  */
@@ -99,6 +99,7 @@ extern ZigmoSensorEndpoint zigmo_endpoints[ZIGMO_NUM_SENSORS];
 extern void zclZigmo_Init( byte task_id );
 extern void zclZigmo_InitMoistureSensors( byte task_id );
 extern void zclZigmo_JoinNetwork(void);
+extern uint8 zigmo_read_ms(void); 
 
 /*
  *  Event Process for the task

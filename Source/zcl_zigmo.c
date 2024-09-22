@@ -88,6 +88,7 @@
 #include "hal_lcd.h"
 #include "hal_led.h"
 #include "hal_key.h"
+#include "hal_adc.h"
 
 #if defined (OTA_CLIENT) && (OTA_CLIENT == TRUE)
 #include "zcl_ota.h"
@@ -296,6 +297,16 @@ void zclZigmo_Init( byte task_id )
 
   // Start timer
   osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
+
+  HalAdcSetReference(HAL_ADC_REF_125V);
+
+
+//  P1_0 = 1;
+//  P1_1 = 1;
+
+  P1_2 = 0;
+  P1_3 = 0;
+
 }
 
 
@@ -330,6 +341,36 @@ void zclZigmo_JoinNetwork(void)
   bdb_StartCommissioning(BDB_COMMISSIONING_MODE_NWK_STEERING);
 }
 
+#define ZIGMO_DELAY()   st( { volatile uint32 i; for (i=0; i<0x4000; i++) { }; } )
+
+
+uint8 zigmo_read_ms(void)
+{
+  P1_0 = 1; // power on
+  P1_1 = 1;
+  ZIGMO_DELAY();
+
+  uint16 adc;
+  uint8 ksave0 = 0;
+
+  /* Keep on reading the ADC until two consecutive key decisions are the same. */
+  do
+  {
+    ksave0 = adc;
+    adc = HalAdcRead (HAL_ADC_CHN_AIN4, HAL_ADC_RESOLUTION_10);
+  } while (adc != ksave0);
+
+
+  P1_0 = 0; // power off
+  P1_1 = 0;
+
+  uint8 buf[8];
+  _itoa(adc, buf, 10);
+  debug_str(buf);
+
+  return adc;
+}
+
 /*********************************************************************
  * @fn          zclSample_event_loop
  *
@@ -343,7 +384,6 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
 {
   afIncomingMSGPacket_t *MSGpkt;
   uint8 btn_0_pressed = 0;
-  //uint8 k_k, k_s;
 
   (void)task_id;  // Intentionally unreferenced parameter
 
@@ -358,22 +398,21 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
   if (events & ZIGMO_TOGGLE_TEST_EVT)
   {
     osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
-
+    zigmo_read_ms();
+/*
     for (int i = 0; i < ZIGMO_NUM_SENSORS; i++)
     {
       if (bdbAttributes.bdbNodeIsOnANetwork == TRUE) {
+        zigmo_endpoints[i].measuredValue = (100 - zigmo_read_ms()) *  100;
 
         uint8 status = bdb_RepChangedAttrValue(ZIGMO_FIRST_SENSOR_ENDPOINT + i,
                                              ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
                                              ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE);
         debug_str(status == ZSuccess ? "rep ok" : "rep fail");
       }
-      zigmo_endpoints[i].measuredValue += (i + 1) *  100;
-      if (zigmo_endpoints[i].measuredValue >= zclZigmoHumidity_MaxMeasuredValue) {
-        zigmo_endpoints[i].measuredValue = zclZigmoHumidity_MinMeasuredValue;
-      }
-    }
 
+    }
+//*/
     // return unprocessed events
     return (events ^ ZIGMO_TOGGLE_TEST_EVT);
   }
