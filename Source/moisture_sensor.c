@@ -18,7 +18,7 @@ static const cId_t _InClusterList[] =
   ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY
 };
 
-void zigmo_init_endpoint(ZigmoSensorEndpoint* ep,
+void zigmo_sensor_init_endpoint(ZigmoSensorEndpoint* ep,
                          uint8 endpoint_id,
                          uint8 device_version,
                          const zclAttrRec_t __code* attrs)
@@ -52,7 +52,7 @@ void zigmo_init_endpoint(ZigmoSensorEndpoint* ep,
   uint8 reportableChange[] = {0x64, 0x00};
 #endif
 
-ZStatus_t zigmo_register_endpoint(ZigmoSensorEndpoint* ep,
+ZStatus_t zigmo_sensor_register_endpoint(ZigmoSensorEndpoint* ep,
                              uint8 endpoint_id,
                              zclGeneral_AppCallbacks_t* cmd_callbacks)
 {
@@ -87,8 +87,8 @@ void zigmo_sensor_read_delay()
    for (i=0; i<0x4000; i++) { };
 }
 
-#define ADC_MAX 260
-#define ADC_MIN 111
+#define ADC_MAX 300
+#define ADC_MIN 100
 
 uint8 zigmo_sensor_read(uint8 sensor_id)
 {
@@ -116,6 +116,10 @@ uint8 zigmo_sensor_read(uint8 sensor_id)
   ZIGMO_SENSOR_SEL_A_PIN = 0;
   ZIGMO_SENSOR_SEL_B_PIN = 0;
 
+  if (adc < 60) {
+    return 0; // No input signal.
+  }
+
   adc -= ADC_MIN;
   if (adc < 0) adc = 0;
 
@@ -124,7 +128,7 @@ uint8 zigmo_sensor_read(uint8 sensor_id)
   if (adc > 100) adc = 100;
 
   adc = 100 - adc;
-
+/*
   uint8 buf[8] = {0};
   _itoa(ksave0, buf, 10);
   uint8* p = &buf[0];
@@ -132,6 +136,6 @@ uint8 zigmo_sensor_read(uint8 sensor_id)
   *p='-';
   _itoa(adc, p + 1, 10);
   debug_str(buf);
-
+*/
   return adc;
 }

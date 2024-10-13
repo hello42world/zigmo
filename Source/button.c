@@ -22,6 +22,9 @@ void zigmo_buttons_init(uint8 task_id)
   g_button_task_id = task_id;
 }
 
+/**
+ * Reroutes OSAL timer event to the task.
+ */
 void zigmo_button_process_osal_evt(uint16 events)
 {
   // 4 bits for the button event

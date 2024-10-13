@@ -59,16 +59,14 @@ extern "C"
 #define ZIGMO_ENDPOINT               8
 #define ZIGMO_FIRST_SENSOR_ENDPOINT  9
 
-
-#define LIGHT_OFF                       0x00
-#define LIGHT_ON                        0x01
+#define ZIGMO_DEVICE_VERSION     1
 
 // Events for the sample app
 #define SAMPLEAPP_END_DEVICE_REJOIN_EVT   0x0001
 
 #define SAMPLEAPP_END_DEVICE_REJOIN_DELAY 10000
 
-#define ZIGMO_NUM_SENSORS 1
+#define ZIGMO_NUM_SENSORS 2
 /*********************************************************************
  * MACROS
  */
@@ -88,7 +86,8 @@ extern uint16 zclZigmo_IdentifyTime;
 extern CONST uint8 zclZigmo_NumAttributes;
 
 
-extern ZigmoSensorEndpoint zigmo_endpoints[ZIGMO_NUM_SENSORS];
+extern ZigmoSensorEndpoint g_zigmo_endpoints[ZIGMO_NUM_SENSORS];
+extern CONST zclAttrRec_t g_zigmo_sensor_attrs[][ZIGMO_NUM_SENSOR_ZCL_ATTR];
 /*********************************************************************
  * FUNCTIONS
  */
@@ -97,7 +96,6 @@ extern ZigmoSensorEndpoint zigmo_endpoints[ZIGMO_NUM_SENSORS];
   * Initialization for the task
   */
 extern void zclZigmo_Init( byte task_id );
-extern void zclZigmo_InitMoistureSensors( byte task_id );
 extern void zclZigmo_JoinNetwork(void);
 
 
@@ -110,8 +108,6 @@ extern UINT16 zclZigmo_event_loop( byte task_id, UINT16 events );
  *  Reset all writable attributes to their default values.
  */
 extern void zclZigmo_ResetAttributesToDefaultValues(void); //implemented in zcl_zigmo_data.c
-
-extern void zclZigmo_InitSensorEndpoint(ZigmoSensorEndpoint* ep, uint8 endpointId);
 
 /*********************************************************************
 *********************************************************************/

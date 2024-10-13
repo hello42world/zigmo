@@ -116,7 +116,6 @@
  * GLOBAL VARIABLES
  */
 byte zclZigmo_TaskID;
-byte zclZigmo_HumidityTaskID;
 
 /*********************************************************************
  * GLOBAL FUNCTIONS
@@ -286,42 +285,36 @@ void zclZigmo_Init( byte task_id )
 
   zdpExternalStateTaskID = zclZigmo_TaskID;
 
-  // Init the moistue sensors
-  zclZigmo_InitMoistureSensors(task_id);
-
-  // Init buttons
-  zigmo_buttons_init(zclZigmo_TaskID);
-
   // Rejoin the network.
   bdb_StartCommissioning(BDB_COMMISSIONING_REJOIN_EXISTING_NETWORK_ON_STARTUP);
 
   // Start timer
   osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
 
-  HalAdcSetReference(HAL_ADC_REF_125V);
+  // Init buttons
+  zigmo_buttons_init(zclZigmo_TaskID);
 
-}
-
-
-void zclZigmo_InitMoistureSensors( byte task_id )
-{
-  int i;
-
-  // Init taskId
-  zclZigmo_HumidityTaskID = task_id;
+  // todo: should be zigmo_sensor_init_adc?
+  HalAdcSetReference(HAL_ADC_REF_AIN7);
 
   // Init sensor endpoint data structures
-  for (i = 0; i < ZIGMO_NUM_SENSORS; i++)
+  for (uint8 i = 0; i < ZIGMO_NUM_SENSORS; i++)
   {
-    zclZigmo_InitSensorEndpoint(&zigmo_endpoints[i],
-                                ZIGMO_FIRST_SENSOR_ENDPOINT + i);
 
-    zigmo_register_endpoint(&zigmo_endpoints[i],
+    zigmo_sensor_init_endpoint(&g_zigmo_endpoints[i],
+                      ZIGMO_FIRST_SENSOR_ENDPOINT + i,
+                      ZIGMO_DEVICE_VERSION,
+                      g_zigmo_sensor_attrs[i]);
+
+    zigmo_sensor_register_endpoint(&g_zigmo_endpoints[i],
                             ZIGMO_FIRST_SENSOR_ENDPOINT + i,
                             &zclZigmo_CmdCallbacks);
 
   }
+
+
 }
+
 
 
 void zclZigmo_JoinNetwork(void)
@@ -349,6 +342,10 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
   afIncomingMSGPacket_t *MSGpkt;
   uint8 btn_0_pressed = 0;
 
+  uint8 buf[16] = {0};
+  uint8* pbuf = &buf[0];
+
+
   (void)task_id;  // Intentionally unreferenced parameter
 
   if (events & ZIGMO_BTN_OSAL_EVT)
@@ -362,11 +359,17 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
   if (events & ZIGMO_TOGGLE_TEST_EVT)
   {
     osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
-    zigmo_sensor_read(1);
 
-/*
     for (int i = 0; i < ZIGMO_NUM_SENSORS; i++)
     {
+        uint8 moisture = zigmo_sensor_read(i);
+
+        while(*pbuf != 0) pbuf++;
+
+        if (i != 0) *(pbuf++)='-';
+        _itoa(moisture, pbuf, 10);
+
+/*
       if (bdbAttributes.bdbNodeIsOnANetwork == TRUE) {
         zigmo_endpoints[i].measuredValue = (100 - zigmo_read_ms()) *  100;
 
@@ -375,9 +378,12 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
                                              ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE);
         debug_str(status == ZSuccess ? "rep ok" : "rep fail");
       }
-
-    }
 */
+    }
+//*/
+
+    debug_str(buf);
+
     // return unprocessed events
     return (events ^ ZIGMO_TOGGLE_TEST_EVT);
   }
@@ -395,8 +401,8 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
           break;
 
         case KEY_CHANGE:
-          btn_0_pressed = ((keyChange_t *)MSGpkt)->keys & HAL_KEY_SW_6;
-          zigmo_button_notify_hw_state(ZIGMO_BTN_0, (bool)btn_0_pressed);
+          // btn_0_pressed = ((keyChange_t *)MSGpkt)->keys & HAL_KEY_SW_6;
+          // zigmo_button_notify_hw_state(ZIGMO_BTN_0, (bool)btn_0_pressed);
           break;
 
         case ZIGMO_BTN_CHANGE:

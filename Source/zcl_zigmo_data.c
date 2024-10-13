@@ -67,7 +67,6 @@
  * CONSTANTS
  */
 
-#define ZIGMO_DEVICE_VERSION     1
 #define ZIGMO_FLAGS              0
 
 #define ZIGMO_HWVERSION          0
@@ -112,10 +111,10 @@ uint16 zclZigmo_IdentifyTime = 0;
 /*********************************************************************
  * ATTRIBUTE DEFINITIONS - Uses REAL cluster IDs
  */
- 
-  // NOTE: The attributes listed in the AttrRec must be in ascending order 
+
+  // NOTE: The attributes listed in the AttrRec must be in ascending order
   // per cluster to allow right function of the Foundation discovery commands
- 
+
 CONST zclAttrRec_t zclZigmo_Attrs[] =
 {
   // *** General Basic Cluster Attributes ***
@@ -127,7 +126,7 @@ CONST zclAttrRec_t zclZigmo_Attrs[] =
       ACCESS_CONTROL_READ,
       (void *)&zclZigmo_ZCLVersion
     }
-  },  
+  },
   {
     ZCL_CLUSTER_ID_GEN_BASIC,             // Cluster IDs - defined in the foundation (ie. zcl.h)
     {  // Attribute record
@@ -208,7 +207,7 @@ CONST zclAttrRec_t zclZigmo_Attrs[] =
       ACCESS_CONTROL_READ,
       (void *)&zclZigmo_clusterRevision_all
     }
-  },  
+  },
 
   // *** Identify Cluster Attribute ***
   {
@@ -219,7 +218,7 @@ CONST zclAttrRec_t zclZigmo_Attrs[] =
       (ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE),
       (void *)&zclZigmo_IdentifyTime
     }
-  },  
+  },
   {
     ZCL_CLUSTER_ID_GEN_IDENTIFY,
     {  // Attribute record
@@ -282,24 +281,24 @@ SimpleDescriptionFormat_t zclZigmo_SimpleDesc =
 
 // Sensor array
 
-ZigmoSensorEndpoint zigmo_endpoints[ZIGMO_NUM_SENSORS];
+ZigmoSensorEndpoint g_zigmo_endpoints[ZIGMO_NUM_SENSORS];
 
-CONST zclAttrRec_t zigmo_sensor_attrs[][ZIGMO_NUM_SENSOR_ZCL_ATTR] = {
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[0].measuredValue),
+CONST zclAttrRec_t g_zigmo_sensor_attrs[][ZIGMO_NUM_SENSOR_ZCL_ATTR] = {
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[0].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[1].measuredValue),
 /*
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[1].measuredValue),  
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[2].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[3].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[4].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[5].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[6].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&zigmo_endpoints[7].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[2].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[3].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[4].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[5].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[6].measuredValue),
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[7].measuredValue),
 */
 };
 
 // Number of attrs in zigmo_sensor_attrs must == NUM_SENSORS
 STATIC_ASSERT(
-              (sizeof(zigmo_sensor_attrs) / sizeof(zclAttrRec_t) / ZIGMO_NUM_SENSOR_ZCL_ATTR) == ZIGMO_NUM_SENSORS, 
+              (sizeof(g_zigmo_sensor_attrs) / sizeof(zclAttrRec_t) / ZIGMO_NUM_SENSOR_ZCL_ATTR) == ZIGMO_NUM_SENSORS,
               num_attr_mismatch_w_sensors);
 
 /*********************************************************************
@@ -309,16 +308,6 @@ STATIC_ASSERT(
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
-
-void zclZigmo_InitSensorEndpoint(ZigmoSensorEndpoint* ep,
-                                 uint8 endpointId) 
-{ 
-  zigmo_init_endpoint(ep,
-                      endpointId,
-                      ZIGMO_DEVICE_VERSION,
-                      zigmo_sensor_attrs[endpointId - ZIGMO_FIRST_SENSOR_ENDPOINT]);
- 
-}
 
 
 /*********************************************************************
@@ -333,21 +322,21 @@ void zclZigmo_InitSensorEndpoint(ZigmoSensorEndpoint* ep,
 void zclZigmo_ResetAttributesToDefaultValues(void)
 {
   int i;
-  
+
   zclZigmo_LocationDescription[0] = 16;
   for (i = 1; i <= 16; i++)
   {
     zclZigmo_LocationDescription[i] = ' ';
   }
-  
+
   zclZigmo_PhysicalEnvironment = DEFAULT_PHYSICAL_ENVIRONMENT;
   zclZigmo_DeviceEnable = DEFAULT_DEVICE_ENABLE_STATE;
-  
+
   zclZigmo_IdentifyTime = DEFAULT_IDENTIFY_TIME;
-    
-  for (i = 0; i < ZIGMO_NUM_SENSORS; i++) 
+
+  for (i = 0; i < ZIGMO_NUM_SENSORS; i++)
   {
-    zigmo_endpoints[i].measuredValue = -1;
+    g_zigmo_endpoints[i].measuredValue = -1;
   }
 }
 
