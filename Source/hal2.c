@@ -194,18 +194,18 @@ void HalKeyInit( void )
 
 //  P0INP &= ~(HAL_ZIGMO_BTN1_BIT);
 //  P2INP &= ~(1 << 5); // pullup
-  
+
   HAL_KEY_JOY_MOVE_SEL &= ~(HAL_KEY_JOY_MOVE_BIT); /* Set pin function to GPIO */
   HAL_KEY_JOY_MOVE_DIR &= ~(HAL_KEY_JOY_MOVE_BIT); /* Set pin direction to Input */
 
 
-  
+
   /* Initialize callback function */
   pHalKeyProcessFunction  = NULL;
 
   /* Start with key is not configured */
   HalKeyConfigured = FALSE;
-  
+
 
   // Set P1_0 to GPIO
   P1SEL &= ~(1 << 0);
@@ -227,6 +227,10 @@ void HalKeyInit( void )
   // Set P1_3 direction to Output.
   P1DIR |= (1 << 3);
 
+  // Set P1_5 to GPIO
+  P1SEL &= ~(1 << 5);
+  // Set P1_6 direction to Output.
+  P1DIR |= (1 << 5);
 }
 
 
@@ -350,14 +354,14 @@ void HalKeyPoll (void)
   if ((HAL_KEY_JOY_MOVE_PORT & HAL_KEY_JOY_MOVE_BIT))  /* Key is active HIGH */
   {
     // keys = halGetJoyKeyInput();
-    HalAdcRead (HAL_ADC_CHN_AIN6, HAL_ADC_RESOLUTION_8);
+   // HalAdcRead (HAL_ADC_CHN_AIN6, HAL_ADC_RESOLUTION_8);
   }
 
   if (HAL_ZIGMO_BTN1())
   {
     keys |= HAL_KEY_SW_6;
   }
-  
+
   /* If interrupts are not enabled, previous key status and current key status
    * are compared to find out if a key has changed status.
    */
@@ -375,7 +379,7 @@ void HalKeyPoll (void)
   {
     /* Key interrupt handled here */
   }
-  
+
 
   /* Invoke Callback if new keys were depressed */
   if (pHalKeyProcessFunction
@@ -530,7 +534,7 @@ HAL_ISR_FUNCTION( halKeyPort0Isr, P0INT_VECTOR )
   */
   HAL_ZIGMO_BTN1_PXIFG = 0;
   HAL_KEY_CPU_PORT_0_IF = 0;
-  
+
   CLEAR_SLEEP_MODE();
   HAL_EXIT_ISR();
 }
@@ -548,7 +552,7 @@ HAL_ISR_FUNCTION( halKeyPort0Isr, P0INT_VECTOR )
 HAL_ISR_FUNCTION( halKeyPort2Isr, P2INT_VECTOR )
 {
   HAL_ENTER_ISR();
-  
+
   if (HAL_KEY_JOY_MOVE_PXIFG & HAL_KEY_JOY_MOVE_BIT)
   {
     halProcessKeyInterrupt();

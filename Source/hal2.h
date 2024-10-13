@@ -7,5 +7,6 @@
 #define ZIGMO_SENSOR_PWR_PIN   P1_1
 #define ZIGMO_SENSOR_SEL_A_PIN P1_2
 #define ZIGMO_SENSOR_SEL_B_PIN P1_3
+#define ZIGMO_VMETER_PWR_PIN   P1_5
 
 #endif

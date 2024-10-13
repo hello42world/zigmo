@@ -85,6 +85,7 @@
 #include "onboard.h"
 
 /* HAL */
+#include "hal2.h"
 #include "hal_lcd.h"
 #include "hal_led.h"
 #include "hal_key.h"
@@ -325,6 +326,47 @@ void zclZigmo_JoinNetwork(void)
 }
 
 
+void zigmo_get_battery_voltage(void)
+{
+ HalAdcSetReference(HAL_ADC_REF_125V);
+
+  ZIGMO_VMETER_PWR_PIN = 1;
+  zigmo_util_delay(2000);
+
+  int16 adc;
+  int16 ksave0 = 0;
+
+  /* Keep on reading the ADC until two consecutive key decisions are the same. */
+  do
+  {
+    ksave0 = adc;
+    adc = HalAdcRead (HAL_ADC_CHN_AIN6, HAL_ADC_RESOLUTION_10);
+  } while (adc != ksave0);
+
+  ZIGMO_VMETER_PWR_PIN = 0;
+
+/*
+  adc -= ADC_MIN;
+  if (adc < 0) adc = 0;
+
+  adc = adc * 100 / (ADC_MAX - ADC_MIN);
+
+  if (adc > 100) adc = 100;
+
+  adc = 100 - adc;
+*/
+
+  uint8 buf[8] = {0};
+  uint8* pbuf = &buf[0];
+  _itoa(ksave0, pbuf, 10);
+  while(*pbuf != 0) pbuf++;
+  *(pbuf++)='-';
+  _itoa(adc, pbuf, 10);
+  debug_str(buf);
+
+//  return adc;
+}
+
 /*********************************************************************
  * @fn          zclSample_event_loop
  *
@@ -357,15 +399,17 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
   {
     osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
 
+    zigmo_get_battery_voltage();
+
     for (int i = 0; i < ZIGMO_NUM_SENSORS; i++)
     {
+
         uint8 moisture = zigmo_sensor_read(i);
-
+/*
         while(*pbuf != 0) pbuf++;
-
         if (i != 0) *(pbuf++)='-';
         _itoa(moisture, pbuf, 10);
-
+*/
 /*
       if (bdbAttributes.bdbNodeIsOnANetwork == TRUE) {
         zigmo_endpoints[i].measuredValue = (100 - zigmo_read_ms()) *  100;
@@ -377,9 +421,8 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
       }
 */
     }
-//*/
 
-    debug_str(buf);
+//    debug_str(buf);
 
     // return unprocessed events
     return (events ^ ZIGMO_TOGGLE_TEST_EVT);
