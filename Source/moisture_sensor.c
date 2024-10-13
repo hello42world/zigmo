@@ -81,11 +81,6 @@ ZStatus_t zigmo_sensor_register_endpoint(ZigmoSensorEndpoint* ep,
   return s;
 }
 
-void zigmo_sensor_read_delay()
-{
-   volatile uint32 i;
-   for (i=0; i<0x4000; i++) { };
-}
 
 #define ADC_MAX 300
 #define ADC_MIN 100
@@ -100,7 +95,7 @@ uint8 zigmo_sensor_read(uint8 sensor_id)
   ZIGMO_SENSOR_SEL_A_PIN = (sensor_id >> 0) & 0x01; // A
   ZIGMO_SENSOR_SEL_B_PIN = (sensor_id >> 1) & 0x01; // B
 
-  zigmo_sensor_read_delay();
+  zigmo_util_delay(4000);
 
   int16 adc;
   int16 ksave0 = 0;

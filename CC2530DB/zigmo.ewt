@@ -5405,6 +5405,9 @@
             <name>$PROJ_DIR$\..\Source\OSAL_zigmo.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\Source\util.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\Source\util.h</name>
         </file>
         <file>

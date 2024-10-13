@@ -79,7 +79,6 @@ ZStatus_t zigmo_sensor_register_endpoint(ZigmoSensorEndpoint* ep,
                                   uint8 endpoint_id,
                                   zclGeneral_AppCallbacks_t* cmd_callbacks);
 
-extern void zigmo_sensor_read_delay(void);
 extern uint8 zigmo_sensor_read(uint8 sensor_id);
 
 #endif
