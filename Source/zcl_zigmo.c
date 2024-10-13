@@ -294,9 +294,6 @@ void zclZigmo_Init( byte task_id )
   // Init buttons
   zigmo_buttons_init(zclZigmo_TaskID);
 
-  // todo: should be zigmo_sensor_init_adc?
-  HalAdcSetReference(HAL_ADC_REF_AIN7);
-
   // Init sensor endpoint data structures
   for (uint8 i = 0; i < ZIGMO_NUM_SENSORS; i++)
   {

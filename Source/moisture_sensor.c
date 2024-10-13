@@ -92,6 +92,8 @@ void zigmo_sensor_read_delay()
 
 uint8 zigmo_sensor_read(uint8 sensor_id)
 {
+  HalAdcSetReference(HAL_ADC_REF_AIN7);
+
   ZIGMO_LED_PIN = 1;
   ZIGMO_SENSOR_PWR_PIN = 1;
 
