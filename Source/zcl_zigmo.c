@@ -335,7 +335,10 @@ void zclZigmo_JoinNetwork(void)
   bdb_StartCommissioning(BDB_COMMISSIONING_MODE_NWK_STEERING);
 }
 
-
+/**
+* The return value here is percentage times 2.
+* That is what ZCL expects.
+*/
 uint8 zigmo_get_battery_percentage(void)
 {
   // adc 323 = 3.13v
@@ -345,8 +348,8 @@ uint8 zigmo_get_battery_percentage(void)
   ZIGMO_VMETER_PWR_PIN = 1;
   zigmo_util_delay(2000);
 
-  int16 adc;
-  int16 ksave0 = 0;
+  int32 adc;
+  int32 ksave0 = 0;
 
   /* Keep on reading the ADC until two consecutive key decisions are the same. */
   do
@@ -357,11 +360,11 @@ uint8 zigmo_get_battery_percentage(void)
 
   ZIGMO_VMETER_PWR_PIN = 0;
 
-  // 330 - full; 150 - empty
+  // 320 - full; 150 - empty
   adc -= 150;
   if (adc < 0) adc = 0;
-  adc = adc * 100 / (330 - 150);
-  if (adc > 100) adc = 100;
+  adc = adc * 200 / (320 - 150);
+  if (adc > 200) adc = 200;
 /*
   uint8 buf[8] = {0};
   uint8* pbuf = &buf[0];
@@ -411,7 +414,11 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
 
     if (bdbAttributes.bdbNodeIsOnANetwork == TRUE) {
 
-      //zigmo_get_battery_percentage();
+      zigmo_battery_percentage = zigmo_get_battery_percentage();
+      uint8 status = bdb_RepChangedAttrValue(ZIGMO_ENDPOINT,
+                                           ZCL_CLUSTER_ID_GEN_POWER_CFG,
+                                           ATTRID_POWER_CFG_BATTERY_PERCENTAGE_REMAINING);
+      debug_str(status == ZSuccess ? "vrep ok" : "vrep fail");
 
       for (int i = 0; i < ZIGMO_NUM_SENSORS; i++)
       {
@@ -432,10 +439,7 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
         }
     }
 
-    uint8 status = bdb_RepChangedAttrValue(ZIGMO_ENDPOINT,
-                                           ZCL_CLUSTER_ID_GEN_POWER_CFG,
-                                           ATTRID_POWER_CFG_BATTERY_PERCENTAGE_REMAINING);
-    debug_str(status == ZSuccess ? "vrep ok" : "vrep fail");
+
 //    debug_str(buf);
 
     // return unprocessed events
