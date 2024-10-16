@@ -455,8 +455,8 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
           break;
 
         case KEY_CHANGE:
-          // btn_0_pressed = ((keyChange_t *)MSGpkt)->keys & HAL_KEY_SW_6;
-          // zigmo_button_notify_hw_state(ZIGMO_BTN_0, (bool)btn_0_pressed);
+          btn_0_pressed = ((keyChange_t *)MSGpkt)->keys & HAL_KEY_SW_6;
+          zigmo_button_notify_hw_state(ZIGMO_BTN_0, (bool)btn_0_pressed);
           break;
 
         case ZIGMO_BTN_CHANGE:
@@ -470,7 +470,6 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
           {
             debug_str("In progr or on nwk");
           }
-          // P1_1 = !P1_1; // toggle led
 
           break;
 

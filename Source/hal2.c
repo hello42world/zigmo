@@ -103,7 +103,7 @@
 
 #define HAL_KEY_DEBOUNCE_VALUE  25
 
-#define HAL_ZIGMO_BTN1_PIN 7
+#define HAL_ZIGMO_BTN1_PIN 1
 #define HAL_ZIGMO_BTN_(pin) (P0_ ## pin)
 #define HAL_ZIGMO_BTN(pin) HAL_ZIGMO_BTN_(pin)
 #define HAL_ZIGMO_BTN1() (!HAL_ZIGMO_BTN(HAL_ZIGMO_BTN1_PIN))
