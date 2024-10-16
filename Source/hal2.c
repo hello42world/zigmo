@@ -229,8 +229,20 @@ void HalKeyInit( void )
 
   // Set P1_5 to GPIO
   P1SEL &= ~(1 << 5);
-  // Set P1_6 direction to Output.
+  // Set P1_5 direction to Output.
   P1DIR |= (1 << 5);
+
+  // Set P0_4 to Peripheral
+  P0SEL |= (1 << 4);
+  // Set P0_4 direction to Output.
+  P0DIR |= (1 << 4);
+  // Enable ADC
+  APCFG |= (1 << 4);
+
+  // Set P0_1 to GPIO
+  P0SEL &= ~(1 << 1);
+  // Set P0_1 direction to Input.
+  P0DIR &= ~(1 << 1);
 }
 
 

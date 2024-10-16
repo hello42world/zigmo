@@ -97,7 +97,8 @@ const uint8 zclZigmo_ZCLVersion = ZIGMO_ZCLVERSION;
 const uint8 zclZigmo_ManufacturerName[] = { 16, 'T','e','x','a','s','I','n','s','t','r','u','m','e','n','t','s' };
 const uint8 zclZigmo_ModelId[] = { 16, 'T','I','0','0','0','2',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ' };
 const uint8 zclZigmo_DateCode[] = { 16, '2','0','0','6','0','8','3','1',' ',' ',' ',' ',' ',' ',' ',' ' };
-const uint8 zclZigmo_PowerSource = POWER_SOURCE_MAINS_1_PHASE;
+//const uint8 zclZigmo_PowerSource = POWER_SOURCE_MAINS_1_PHASE;
+const uint8 zclZigmo_PowerSource = POWER_SOURCE_BATTERY;
 
 uint8 zclZigmo_LocationDescription[17];
 uint8 zclZigmo_PhysicalEnvironment;
@@ -208,7 +209,16 @@ CONST zclAttrRec_t zclZigmo_Attrs[] =
       (void *)&zclZigmo_clusterRevision_all
     }
   },
-
+  // *** Power Configuration Cluster Attribute ***
+  {
+    ZCL_CLUSTER_ID_GEN_POWER_CFG,
+    { // Attribute record
+      ATTRID_POWER_CFG_BATTERY_PERCENTAGE_REMAINING,
+      ZCL_DATATYPE_UINT8,
+      (ACCESS_CONTROL_READ | ACCESS_REPORTABLE),
+      (void *)&zigmo_battery_percentage
+    }
+  },
   // *** Identify Cluster Attribute ***
   {
     ZCL_CLUSTER_ID_GEN_IDENTIFY,
@@ -252,6 +262,7 @@ uint8 CONST zclZigmo_NumAttributes = ( sizeof(zclZigmo_Attrs) / sizeof(zclZigmo_
 const cId_t zclZigmo_InClusterList[] =
 {
   ZCL_CLUSTER_ID_GEN_BASIC,
+  ZCL_CLUSTER_ID_GEN_POWER_CFG,
   ZCL_CLUSTER_ID_GEN_IDENTIFY,
 };
 
@@ -285,8 +296,8 @@ ZigmoSensorEndpoint g_zigmo_endpoints[ZIGMO_NUM_SENSORS];
 
 CONST zclAttrRec_t g_zigmo_sensor_attrs[][ZIGMO_NUM_SENSOR_ZCL_ATTR] = {
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[0].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[1].measuredValue),
 /*
+  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[1].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[2].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[3].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[4].measuredValue),
@@ -331,13 +342,16 @@ void zclZigmo_ResetAttributesToDefaultValues(void)
 
   zclZigmo_PhysicalEnvironment = DEFAULT_PHYSICAL_ENVIRONMENT;
   zclZigmo_DeviceEnable = DEFAULT_DEVICE_ENABLE_STATE;
-
   zclZigmo_IdentifyTime = DEFAULT_IDENTIFY_TIME;
 
+  // Moisture sensors
   for (i = 0; i < ZIGMO_NUM_SENSORS; i++)
   {
     g_zigmo_endpoints[i].measuredValue = -1;
   }
+
+  // Battery percentage
+  zigmo_battery_percentage = 0;
 }
 
 /****************************************************************************

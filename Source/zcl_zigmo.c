@@ -117,6 +117,7 @@
  * GLOBAL VARIABLES
  */
 byte zclZigmo_TaskID;
+uint8 zigmo_battery_percentage;
 
 /*********************************************************************
  * GLOBAL FUNCTIONS
@@ -286,9 +287,6 @@ void zclZigmo_Init( byte task_id )
 
   zdpExternalStateTaskID = zclZigmo_TaskID;
 
-  // Rejoin the network.
-  bdb_StartCommissioning(BDB_COMMISSIONING_REJOIN_EXISTING_NETWORK_ON_STARTUP);
-
   // Start timer
   osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
 
@@ -304,13 +302,25 @@ void zclZigmo_Init( byte task_id )
                       ZIGMO_DEVICE_VERSION,
                       g_zigmo_sensor_attrs[i]);
 
-    zigmo_sensor_register_endpoint(&g_zigmo_endpoints[i],
+    ZStatus_t s = zigmo_sensor_register_endpoint(&g_zigmo_endpoints[i],
                             ZIGMO_FIRST_SENSOR_ENDPOINT + i,
                             &zclZigmo_CmdCallbacks);
 
+    if (s != ZSuccess) {
+      debug_str("init failed");
+    }
   }
+/*
+  // Init battery percentage metering
+  bdb_RepAddAttrCfgRecordDefaultToList(endpoint_id,
+                 ZCL_CLUSTER_ID_GEN_POWER_CFG,
+                 ATTRID_POWER_CFG_BATTERY_PERCENTAGE_REMAINING,
+                 0, 10, reportableChange);
 
+*/
 
+  // Rejoin the network. Should be the last step.
+  bdb_StartCommissioning(BDB_COMMISSIONING_REJOIN_EXISTING_NETWORK_ON_STARTUP);
 }
 
 
@@ -326,9 +336,11 @@ void zclZigmo_JoinNetwork(void)
 }
 
 
-void zigmo_get_battery_voltage(void)
+uint8 zigmo_get_battery_percentage(void)
 {
- HalAdcSetReference(HAL_ADC_REF_125V);
+  // adc 323 = 3.13v
+
+  HalAdcSetReference(HAL_ADC_REF_125V);
 
   ZIGMO_VMETER_PWR_PIN = 1;
   zigmo_util_delay(2000);
@@ -345,17 +357,12 @@ void zigmo_get_battery_voltage(void)
 
   ZIGMO_VMETER_PWR_PIN = 0;
 
-/*
-  adc -= ADC_MIN;
+  // 330 - full; 150 - empty
+  adc -= 150;
   if (adc < 0) adc = 0;
-
-  adc = adc * 100 / (ADC_MAX - ADC_MIN);
-
+  adc = adc * 100 / (330 - 150);
   if (adc > 100) adc = 100;
-
-  adc = 100 - adc;
-*/
-
+/*
   uint8 buf[8] = {0};
   uint8* pbuf = &buf[0];
   _itoa(ksave0, pbuf, 10);
@@ -363,8 +370,8 @@ void zigmo_get_battery_voltage(void)
   *(pbuf++)='-';
   _itoa(adc, pbuf, 10);
   debug_str(buf);
-
-//  return adc;
+*/
+  return adc;
 }
 
 /*********************************************************************
@@ -380,10 +387,10 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
 {
   afIncomingMSGPacket_t *MSGpkt;
   uint8 btn_0_pressed = 0;
-
+/*
   uint8 buf[16] = {0};
   uint8* pbuf = &buf[0];
-
+*/
 
   (void)task_id;  // Intentionally unreferenced parameter
 
@@ -399,29 +406,36 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
   {
     osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
 
-    zigmo_get_battery_voltage();
+    // magic
+    HalAdcRead (HAL_ADC_CHN_AIN4, HAL_ADC_RESOLUTION_10);
 
-    for (int i = 0; i < ZIGMO_NUM_SENSORS; i++)
-    {
+    if (bdbAttributes.bdbNodeIsOnANetwork == TRUE) {
 
-        uint8 moisture = zigmo_sensor_read(i);
-/*
-        while(*pbuf != 0) pbuf++;
-        if (i != 0) *(pbuf++)='-';
-        _itoa(moisture, pbuf, 10);
-*/
-/*
-      if (bdbAttributes.bdbNodeIsOnANetwork == TRUE) {
-        zigmo_endpoints[i].measuredValue = (100 - zigmo_read_ms()) *  100;
+      //zigmo_get_battery_percentage();
 
-        uint8 status = bdb_RepChangedAttrValue(ZIGMO_FIRST_SENSOR_ENDPOINT + i,
-                                             ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
-                                             ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE);
-        debug_str(status == ZSuccess ? "rep ok" : "rep fail");
-      }
-*/
+      for (int i = 0; i < ZIGMO_NUM_SENSORS; i++)
+      {
+
+          uint8 moisture = zigmo_sensor_read(i);
+  /*
+          while(*pbuf != 0) pbuf++;
+          if (i != 0) *(pbuf++)='-';
+          _itoa(moisture, pbuf, 10);
+  */
+
+          g_zigmo_endpoints[i].measuredValue = moisture * 100;
+
+          uint8 status = bdb_RepChangedAttrValue(ZIGMO_FIRST_SENSOR_ENDPOINT + i,
+                                               ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
+                                               ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE);
+          debug_str(status == ZSuccess ? "mrep ok" : "mrep fail");
+        }
     }
 
+    uint8 status = bdb_RepChangedAttrValue(ZIGMO_ENDPOINT,
+                                           ZCL_CLUSTER_ID_GEN_POWER_CFG,
+                                           ATTRID_POWER_CFG_BATTERY_PERCENTAGE_REMAINING);
+    debug_str(status == ZSuccess ? "vrep ok" : "vrep fail");
 //    debug_str(buf);
 
     // return unprocessed events

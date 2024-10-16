@@ -97,8 +97,8 @@ uint8 zigmo_sensor_read(uint8 sensor_id)
 
   zigmo_util_delay(4000);
 
-  int16 adc;
-  int16 ksave0 = 0;
+  int32 adc;
+  int32 ksave0 = 0;
 
   /* Keep on reading the ADC until two consecutive key decisions are the same. */
   do
@@ -125,7 +125,7 @@ uint8 zigmo_sensor_read(uint8 sensor_id)
   if (adc > 100) adc = 100;
 
   adc = 100 - adc;
-/*
+
   uint8 buf[8] = {0};
   _itoa(ksave0, buf, 10);
   uint8* p = &buf[0];
@@ -133,6 +133,6 @@ uint8 zigmo_sensor_read(uint8 sensor_id)
   *p='-';
   _itoa(adc, p + 1, 10);
   debug_str(buf);
-*/
+
   return adc;
 }
