@@ -94,7 +94,7 @@ const uint16 zclZigmo_clusterRevision_all = 0x0001; //currently all cluster impl
 // Basic Cluster
 const uint8 zclZigmo_HWRevision = ZIGMO_HWVERSION;
 const uint8 zclZigmo_ZCLVersion = ZIGMO_ZCLVERSION;
-const uint8 zclZigmo_ManufacturerName[] = { 16, 'T','e','x','a','s','I','n','s','t','r','u','m','e','n','t','s' };
+const uint8 zclZigmo_ManufacturerName[] = { 16, 'Z','I','G','M','O',' ','S','e','n','s','o','r',' ','(', '0' + ZIGMO_NUM_SENSORS ,')' };
 const uint8 zclZigmo_ModelId[] = { 16, 'T','I','0','0','0','2',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ' };
 const uint8 zclZigmo_DateCode[] = { 16, '2','0','0','6','0','8','3','1',' ',' ',' ',' ',' ',' ',' ',' ' };
 //const uint8 zclZigmo_PowerSource = POWER_SOURCE_MAINS_1_PHASE;
@@ -296,8 +296,8 @@ ZigmoSensorEndpoint g_zigmo_endpoints[ZIGMO_NUM_SENSORS];
 
 CONST zclAttrRec_t g_zigmo_sensor_attrs[][ZIGMO_NUM_SENSOR_ZCL_ATTR] = {
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[0].measuredValue),
-/*
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[1].measuredValue),
+/*
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[2].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[3].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[4].measuredValue),
@@ -351,7 +351,7 @@ void zclZigmo_ResetAttributesToDefaultValues(void)
   }
 
   // Battery percentage
-  zigmo_battery_percentage = 0;
+  g_zigmo_battery_percentage = 0;
 }
 
 /****************************************************************************

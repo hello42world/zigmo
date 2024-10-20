@@ -66,7 +66,7 @@ extern "C"
 
 #define SAMPLEAPP_END_DEVICE_REJOIN_DELAY 10000
 
-#define ZIGMO_NUM_SENSORS 1
+#define ZIGMO_NUM_SENSORS 2
 /*********************************************************************
  * MACROS
  */

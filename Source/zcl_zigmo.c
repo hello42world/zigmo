@@ -117,7 +117,7 @@
  * GLOBAL VARIABLES
  */
 byte zclZigmo_TaskID;
-uint8 zigmo_battery_percentage;
+uint8 g_zigmo_battery_percentage;
 
 /*********************************************************************
  * GLOBAL FUNCTIONS
@@ -225,7 +225,6 @@ static zclGeneral_AppCallbacks_t zclZigmo_CmdCallbacks =
 
 
 
-
 /*********************************************************************
  * @fn          zclZigmo_Init
  *
@@ -310,14 +309,12 @@ void zclZigmo_Init( byte task_id )
       debug_str("init failed");
     }
   }
-/*
+
   // Init battery percentage metering
-  bdb_RepAddAttrCfgRecordDefaultToList(endpoint_id,
+  bdb_RepAddAttrCfgRecordDefaultToList(ZIGMO_ENDPOINT,
                  ZCL_CLUSTER_ID_GEN_POWER_CFG,
                  ATTRID_POWER_CFG_BATTERY_PERCENTAGE_REMAINING,
                  0, 10, reportableChange);
-
-*/
 
   // Rejoin the network. Should be the last step.
   bdb_StartCommissioning(BDB_COMMISSIONING_REJOIN_EXISTING_NETWORK_ON_STARTUP);
@@ -414,7 +411,7 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
 
     if (bdbAttributes.bdbNodeIsOnANetwork == TRUE) {
 
-      zigmo_battery_percentage = zigmo_get_battery_percentage();
+      g_zigmo_battery_percentage = zigmo_get_battery_percentage();
       uint8 status = bdb_RepChangedAttrValue(ZIGMO_ENDPOINT,
                                            ZCL_CLUSTER_ID_GEN_POWER_CFG,
                                            ATTRID_POWER_CFG_BATTERY_PERCENTAGE_REMAINING);

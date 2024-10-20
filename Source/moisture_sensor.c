@@ -42,15 +42,6 @@ void zigmo_sensor_init_endpoint(ZigmoSensorEndpoint* ep,
   ep->measuredValue = -1;
 }
 
-#if BDBREPORTING_MAX_ANALOG_ATTR_SIZE == 8
-  uint8 reportableChange[] = {0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-#endif
-#if BDBREPORTING_MAX_ANALOG_ATTR_SIZE == 4
-  uint8 reportableChange[] = {0x64, 0x00, 0x00, 0x00};
-#endif
-#if BDBREPORTING_MAX_ANALOG_ATTR_SIZE == 2
-  uint8 reportableChange[] = {0x64, 0x00};
-#endif
 
 ZStatus_t zigmo_sensor_register_endpoint(ZigmoSensorEndpoint* ep,
                              uint8 endpoint_id,
@@ -77,7 +68,6 @@ ZStatus_t zigmo_sensor_register_endpoint(ZigmoSensorEndpoint* ep,
                                    ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
                                    ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE,
                                    0, 10, reportableChange);
-
   return s;
 }
 
