@@ -85,7 +85,7 @@ extern uint16 zclZigmo_IdentifyTime;
 
 extern CONST uint8 zclZigmo_NumAttributes;
 
-extern uint8 zigmo_battery_percentage;
+extern uint8 g_zigmo_battery_percentage;
 
 
 extern ZigmoSensorEndpoint g_zigmo_endpoints[ZIGMO_NUM_SENSORS];

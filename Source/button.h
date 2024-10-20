@@ -28,11 +28,9 @@ typedef struct ZigmoButton ZigmoButton;
 typedef struct  {
   osal_event_hdr_t hdr;
   uint8 btn_id;
-//  uint8 evt_type;
 } ZigmoButtonEvt;
 
 void zigmo_buttons_init(uint8 task_id);
-//ZigmoButton* zigmo_button_create(uint8 task_id, uint8 btn_id);
 void zigmo_button_process_osal_evt(uint16 events);
 void zigmo_button_notify_hw_state(uint8 btn_id, bool pressed);
 

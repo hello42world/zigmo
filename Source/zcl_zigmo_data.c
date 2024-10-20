@@ -216,7 +216,7 @@ CONST zclAttrRec_t zclZigmo_Attrs[] =
       ATTRID_POWER_CFG_BATTERY_PERCENTAGE_REMAINING,
       ZCL_DATATYPE_UINT8,
       (ACCESS_CONTROL_READ | ACCESS_REPORTABLE),
-      (void *)&zigmo_battery_percentage
+      (void *)&g_zigmo_battery_percentage
     }
   },
   // *** Identify Cluster Attribute ***
