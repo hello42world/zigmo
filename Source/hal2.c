@@ -86,7 +86,7 @@
 #include "hal_board.h"
 #include "hal_drivers.h"
 #include "hal_adc.h"
-#include "hal_key.h"
+#include "hal2.h"
 #include "osal.h"
 
 #if (defined HAL_KEY) && (HAL_KEY == TRUE)
@@ -130,8 +130,6 @@
 #define HAL_ZIGMO_BTN1_PXIFG    P0IFG /* Interrupt flag at source */
 
 
-#define HAL_KEY_JOY_CHN   HAL_ADC_CHANNEL_6
-
 
 /**************************************************************************************************
  *                                            TYPEDEFS
@@ -142,7 +140,7 @@
  *                                        GLOBAL VARIABLES
  **************************************************************************************************/
 static uint8 halKeySavedKeys;     /* used to store previous key state in polling mode */
-static halKeyCBack_t pHalKeyProcessFunction;
+static hal2KeyCBack_t pHalKeyProcessFunction;
 static uint8 HalKeyConfigured;
 bool Hal_KeyIntEnable;            /* interrupt enable/disable flag */
 
@@ -230,7 +228,7 @@ void HalKeyInit( void )
  *
  * @return  None
  **************************************************************************************************/
-void HalKeyConfig (bool interruptEnable, halKeyCBack_t cback)
+void HalKeyConfig (bool interruptEnable, hal2KeyCBack_t cback)
 {
   /* Enable/Disable Interrupt or */
   Hal_KeyIntEnable = interruptEnable;
