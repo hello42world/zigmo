@@ -101,6 +101,7 @@
 
 #include "DebugTrace.h"
 
+#include "dbg.h"
 #include "button.h"
 /*********************************************************************
  * MACROS
@@ -362,15 +363,7 @@ uint8 zigmo_get_battery_percentage(void)
   if (adc < 0) adc = 0;
   adc = adc * 200 / (320 - 150);
   if (adc > 200) adc = 200;
-/*
-  uint8 buf[8] = {0};
-  uint8* pbuf = &buf[0];
-  _itoa(ksave0, pbuf, 10);
-  while(*pbuf != 0) pbuf++;
-  *(pbuf++)='-';
-  _itoa(adc, pbuf, 10);
-  debug_str(buf);
-*/
+
   return adc;
 }
 
@@ -387,10 +380,6 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
 {
   afIncomingMSGPacket_t *MSGpkt;
   uint8 btn_0_pressed = 0;
-/*
-  uint8 buf[16] = {0};
-  uint8* pbuf = &buf[0];
-*/
 
   (void)task_id;  // Intentionally unreferenced parameter
 
@@ -412,32 +401,24 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
     if (bdbAttributes.bdbNodeIsOnANetwork == TRUE) {
 
       g_zigmo_battery_percentage = zigmo_get_battery_percentage();
+      dprintf("batt: %d", g_zigmo_battery_percentage);
       uint8 status = bdb_RepChangedAttrValue(ZIGMO_ENDPOINT,
                                            ZCL_CLUSTER_ID_GEN_POWER_CFG,
                                            ATTRID_POWER_CFG_BATTERY_PERCENTAGE_REMAINING);
-      debug_str(status == ZSuccess ? "vrep ok" : "vrep fail");
 
       for (int i = 0; i < ZIGMO_NUM_SENSORS; i++)
       {
 
           uint8 moisture = zigmo_sensor_read(i);
-  /*
-          while(*pbuf != 0) pbuf++;
-          if (i != 0) *(pbuf++)='-';
-          _itoa(moisture, pbuf, 10);
-  */
 
           g_zigmo_endpoints[i].measuredValue = moisture * 100;
 
           uint8 status = bdb_RepChangedAttrValue(ZIGMO_FIRST_SENSOR_ENDPOINT + i,
                                                ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
                                                ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE);
-          debug_str(status == ZSuccess ? "mrep ok" : "mrep fail");
         }
     }
 
-
-//    debug_str(buf);
 
     // return unprocessed events
     return (events ^ ZIGMO_TOGGLE_TEST_EVT);

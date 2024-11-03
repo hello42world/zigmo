@@ -5815,6 +5815,12 @@
             <name>$PROJ_DIR$\..\Source\button.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\Source\dbg.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Source\dbg.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\Source\hal2.c</name>
         </file>
         <file>
