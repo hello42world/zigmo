@@ -10,8 +10,8 @@
 #define ZIGMO_VMETER_PWR_PIN   P1_5
 
 // hal_hey.h
-#define HAL_KEY_SW_6          0x20
-#define HAL_KEY_STATE_NORMAL  0x00
+#define ZIGMO_HAL_KEY_BTN_1         0x20
+#define ZIGMO_HAL_KEY_STATE_NORMAL  0x00
 
 
 typedef void (*hal2KeyCBack_t) (uint8 keys, uint8 state);

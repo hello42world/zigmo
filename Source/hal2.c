@@ -292,7 +292,7 @@ uint8 HalKeyRead ( void )
 
   if (HAL_ZIGMO_BTN1())
   {
-    keys |= HAL_KEY_SW_6;
+    keys |= ZIGMO_HAL_KEY_BTN_1;
   }
 
   return keys;
@@ -314,7 +314,7 @@ void HalKeyPoll (void)
 
   if (HAL_ZIGMO_BTN1())
   {
-    keys |= HAL_KEY_SW_6;
+    keys |= ZIGMO_HAL_KEY_BTN_1;
   }
 
   /* If interrupts are not enabled, previous key status and current key status
@@ -343,7 +343,7 @@ void HalKeyPoll (void)
 #endif
     )
   {
-    (pHalKeyProcessFunction) (keys, HAL_KEY_STATE_NORMAL);
+    (pHalKeyProcessFunction) (keys, ZIGMO_HAL_KEY_STATE_NORMAL);
   }
 }
 

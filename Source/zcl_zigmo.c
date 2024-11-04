@@ -262,8 +262,6 @@ void zclZigmo_Init( byte task_id )
   // Register low voltage NV memory protection application callback
   RegisterVoltageWarningCB( zclSampleApp_BatteryWarningCB );
 
-  RegisterForKeys( zclZigmo_TaskID );
-
   bdb_RegisterCommissioningStatusCB( zclZigmo_ProcessCommissioningStatus );
 
   // Register for a test endpoint
@@ -291,24 +289,23 @@ void zclZigmo_Init( byte task_id )
   osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
 
   // Init buttons
-  zigmo_buttons_init(zclZigmo_TaskID);
+  zigmo_buttons_set_target_task(zclZigmo_TaskID);
 
   // Init sensor endpoint data structures
   for (uint8 i = 0; i < ZIGMO_NUM_SENSORS; i++)
   {
 
-    zigmo_sensor_init_endpoint(&g_zigmo_endpoints[i],
-                      ZIGMO_FIRST_SENSOR_ENDPOINT + i,
-                      ZIGMO_DEVICE_VERSION,
-                      g_zigmo_sensor_attrs[i]);
+    zigmo_sensor_init_endpoint(
+      &g_zigmo_endpoints[i],
+      ZIGMO_FIRST_SENSOR_ENDPOINT + i,
+      ZIGMO_DEVICE_VERSION,
+      g_zigmo_sensor_attrs[i]);
 
-    ZStatus_t s = zigmo_sensor_register_endpoint(&g_zigmo_endpoints[i],
-                            ZIGMO_FIRST_SENSOR_ENDPOINT + i,
-                            &zclZigmo_CmdCallbacks);
+    zigmo_sensor_register_endpoint(
+      &g_zigmo_endpoints[i],
+      ZIGMO_FIRST_SENSOR_ENDPOINT + i,
+      &zclZigmo_CmdCallbacks);
 
-    if (s != ZSuccess) {
-      debug_str("init failed");
-    }
   }
 
   // Init battery percentage metering
@@ -320,8 +317,6 @@ void zclZigmo_Init( byte task_id )
   // Rejoin the network. Should be the last step.
   bdb_StartCommissioning(BDB_COMMISSIONING_REJOIN_EXISTING_NETWORK_ON_STARTUP);
 }
-
-
 
 void zclZigmo_JoinNetwork(void)
 {
@@ -379,16 +374,9 @@ uint8 zigmo_get_battery_percentage(void)
 uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
 {
   afIncomingMSGPacket_t *MSGpkt;
-  uint8 btn_0_pressed = 0;
 
   (void)task_id;  // Intentionally unreferenced parameter
 
-  if (events & ZIGMO_BTN_OSAL_EVT)
-  {
-    zigmo_button_process_osal_evt(events);
-
-    return (events & ~ZIGMO_BTN_OSAL_EVT_MASK);
-  }
 
   //Send toggle every 5s
   if (events & ZIGMO_TOGGLE_TEST_EVT)
@@ -398,7 +386,8 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
     // magic
     HalAdcRead (HAL_ADC_CHN_AIN4, HAL_ADC_RESOLUTION_10);
 
-    if (bdbAttributes.bdbNodeIsOnANetwork == TRUE) {
+    if (bdbAttributes.bdbNodeIsOnANetwork == TRUE)
+    {
 
       g_zigmo_battery_percentage = zigmo_get_battery_percentage();
       dprintf("batt: %d", g_zigmo_battery_percentage);
@@ -436,12 +425,7 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
           zclZigmo_ProcessIncomingMsg( (zclIncomingMsg_t *)MSGpkt );
           break;
 
-        case KEY_CHANGE:
-          btn_0_pressed = ((keyChange_t *)MSGpkt)->keys & HAL_KEY_SW_6;
-          zigmo_button_notify_hw_state(ZIGMO_BTN_0, (bool)btn_0_pressed);
-          break;
-
-        case ZIGMO_BTN_CHANGE:
+        case ZIGMO_BTN_EVENT:
           if (bdbAttributes.bdbCommissioningStatus != BDB_COMMISSIONING_IN_PROGRESS/* &&
               bdbAttributes.bdbNodeIsOnANetwork == false*/)
           {

@@ -60,7 +60,7 @@
 
 #if !defined (DISABLE_GREENPOWER_BASIC_PROXY) && (ZG_BUILD_RTR_TYPE)
   #include "gp_common.h"
-#endif   
+#endif
 #if defined ( ZIGBEE_FREQ_AGILITY ) || defined ( ZIGBEE_PANID_CONFLICT )
   #include "ZDNwkMgr.h"
 #endif
@@ -78,11 +78,13 @@
 #endif // BDB_TL_TARGET
 #endif // INTER_PAN
 
-#include "zcl_zigmo.h"
-
 #if (defined OTA_CLIENT) && (OTA_CLIENT == TRUE)
   #include "zcl_ota.h"
 #endif
+
+#include "zcl_zigmo.h"
+#include "button.h"
+
 /*********************************************************************
  * GLOBAL VARIABLES
  */
@@ -93,7 +95,7 @@ const pTaskEventHandlerFn tasksArr[] = {
   nwk_event_loop,
 #if !defined (DISABLE_GREENPOWER_BASIC_PROXY) && (ZG_BUILD_RTR_TYPE)
   gp_event_loop,
-#endif  
+#endif
   Hal_ProcessEvent,
 #if defined( MT_TASK )
   MT_ProcessEvent,
@@ -121,7 +123,7 @@ const pTaskEventHandlerFn tasksArr[] = {
   zcl_event_loop,
   bdb_event_loop,
   zclZigmo_event_loop,
-//  zclZigmo_moisture_sensor_event_loop,
+  zigmo_buttons_event_loop,
 #if (defined OTA_CLIENT) && (OTA_CLIENT == TRUE)
   zclOTA_event_loop
 #endif
@@ -167,22 +169,22 @@ void osalInitTasks( void )
 #if defined ( ZIGBEE_FREQ_AGILITY ) || defined ( ZIGBEE_PANID_CONFLICT )
   ZDNwkMgr_Init( taskID++ );
 #endif
-  // Added to include TouchLink functionality 
+  // Added to include TouchLink functionality
   #if defined ( INTER_PAN )
     StubAPS_Init( taskID++ );
   #endif
-  // Added to include TouchLink initiator functionality 
+  // Added to include TouchLink initiator functionality
   #if defined( BDB_TL_INITIATOR )
     touchLinkInitiator_Init( taskID++ );
   #endif
-  // Added to include TouchLink target functionality 
+  // Added to include TouchLink target functionality
   #if defined ( BDB_TL_TARGET )
     touchLinkTarget_Init( taskID++ );
   #endif
   zcl_Init( taskID++ );
   bdb_Init( taskID++ );
   zclZigmo_Init( taskID++ );
-//  zclZigmo_InitMoistureSensors(taskID++);
+  zigmo_buttons_init(taskID++);
 #if (defined OTA_CLIENT) && (OTA_CLIENT == TRUE)
   zclOTA_Init( taskID );
 #endif
