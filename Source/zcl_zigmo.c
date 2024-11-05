@@ -106,7 +106,6 @@
 /*********************************************************************
  * MACROS
  */
-#define UI_STATE_TOGGLE_LIGHT 1 //UI_STATE_BACK_FROM_APP_MENU is item #0, so app item numbers should start from 1
 
 #define APP_TITLE "Zigmo!"
 
@@ -120,6 +119,7 @@
 byte zclZigmo_TaskID;
 uint8 g_zigmo_battery_percentage;
 
+#define ZIGMO_TOGGLE_TEST_EVT   0x1000
 /*********************************************************************
  * GLOBAL FUNCTIONS
  */
@@ -139,15 +139,12 @@ static endPointDesc_t zigmo_TestEp =
   (afNetworkLatencyReq_t)0            // No Network Latency req
 };
 
-//static uint8 aProcessCmd[] = { 1, 0, 0, 0 }; // used for reset command, { length + cmd0 + cmd1 + data }
-
 devStates_t zclZigmo_NwkState = DEV_INIT;
 
 #if defined (OTA_CLIENT) && (OTA_CLIENT == TRUE)
 #define DEVICE_POLL_RATE                 8000   // Poll rate for end device
 #endif
 
-#define ZIGMO_TOGGLE_TEST_EVT   0x1000
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -294,18 +291,11 @@ void zclZigmo_Init( byte task_id )
   // Init sensor endpoint data structures
   for (uint8 i = 0; i < ZIGMO_NUM_SENSORS; i++)
   {
-
-    zigmo_sensor_init_endpoint(
+    zigmo_moisture_sensor_init_endpoint(
       &g_zigmo_endpoints[i],
       ZIGMO_FIRST_SENSOR_ENDPOINT + i,
-      ZIGMO_DEVICE_VERSION,
-      g_zigmo_sensor_attrs[i]);
-
-    zigmo_sensor_register_endpoint(
-      &g_zigmo_endpoints[i],
-      ZIGMO_FIRST_SENSOR_ENDPOINT + i,
+      g_zigmo_sensor_attrs[i],
       &zclZigmo_CmdCallbacks);
-
   }
 
   // Init battery percentage metering
@@ -398,7 +388,7 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
       for (int i = 0; i < ZIGMO_NUM_SENSORS; i++)
       {
 
-          uint8 moisture = zigmo_sensor_read(i);
+          uint8 moisture = zigmo_moisture_sensor_read(i);
 
           g_zigmo_endpoints[i].measuredValue = moisture * 100;
 

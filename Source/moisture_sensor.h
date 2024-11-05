@@ -70,15 +70,13 @@ extern const int16 zclZigmoHumidity_MaxMeasuredValue;
 // Functions.
 
 
-void zigmo_sensor_init_endpoint(ZigmoSensorEndpoint* ep,
-                         uint8 endpoint_id,
-                         uint8 device_version,
-                         const zclAttrRec_t __code* attrs);
+ZStatus_t zigmo_moisture_sensor_init_endpoint(
+  ZigmoSensorEndpoint* ep,
+  uint8 endpoint_id,
+  const zclAttrRec_t __code* attrs,
+  zclGeneral_AppCallbacks_t* cmd_callbacks);
 
-ZStatus_t zigmo_sensor_register_endpoint(ZigmoSensorEndpoint* ep,
-                                  uint8 endpoint_id,
-                                  zclGeneral_AppCallbacks_t* cmd_callbacks);
 
-extern uint8 zigmo_sensor_read(uint8 sensor_id);
+extern uint8 zigmo_moisture_sensor_read(uint8 sensor_num);
 
 #endif

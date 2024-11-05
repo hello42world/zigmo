@@ -18,32 +18,8 @@ static const cId_t _InClusterList[] =
   ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY
 };
 
-void zigmo_sensor_init_endpoint(ZigmoSensorEndpoint* ep,
-                         uint8 endpoint_id,
-                         uint8 device_version,
-                         const zclAttrRec_t __code* attrs)
-{
-  // Init attrs
-  ep->pAttrs = attrs;
 
-  // Init simple descriptor
-  ep->simpleDesc.EndPoint = endpoint_id;
-  ep->simpleDesc.AppProfId = ZCL_HA_PROFILE_ID;
-  ep->simpleDesc.AppDeviceId = ZCL_HA_DEVICEID_SIMPLE_SENSOR;
-  ep->simpleDesc.AppDevVer = device_version;
-  ep->simpleDesc.Reserved = 0;
-  ep->simpleDesc.AppNumInClusters = 1;
-  ep->simpleDesc.pAppInClusterList = (cId_t*) _InClusterList;
-  ep->simpleDesc.AppNumOutClusters = 0;
-  ep->simpleDesc.pAppOutClusterList = NULL;
-
-
-  // Init measured value
-  ep->measuredValue = -1;
-}
-
-
-ZStatus_t zigmo_sensor_register_endpoint(ZigmoSensorEndpoint* ep,
+static ZStatus_t zigmo_sensor_register_endpoint(ZigmoSensorEndpoint* ep,
                              uint8 endpoint_id,
                              zclGeneral_AppCallbacks_t* cmd_callbacks)
 {
@@ -71,19 +47,47 @@ ZStatus_t zigmo_sensor_register_endpoint(ZigmoSensorEndpoint* ep,
   return s;
 }
 
+ZStatus_t zigmo_moisture_sensor_init_endpoint(
+  ZigmoSensorEndpoint* ep,
+  uint8 endpoint_id,
+  const zclAttrRec_t __code* attrs,
+  zclGeneral_AppCallbacks_t* cmd_callbacks)
+{
+  // Init attrs
+  ep->pAttrs = attrs;
+
+  // Init simple descriptor
+  ep->simpleDesc.EndPoint = endpoint_id;
+  ep->simpleDesc.AppProfId = ZCL_HA_PROFILE_ID;
+  ep->simpleDesc.AppDeviceId = ZCL_HA_DEVICEID_SIMPLE_SENSOR;
+  ep->simpleDesc.AppDevVer = 1;
+  ep->simpleDesc.Reserved = 0;
+  ep->simpleDesc.AppNumInClusters = 1;
+  ep->simpleDesc.pAppInClusterList = (cId_t*) _InClusterList;
+  ep->simpleDesc.AppNumOutClusters = 0;
+  ep->simpleDesc.pAppOutClusterList = NULL;
+
+
+  // Init measured value
+  ep->measuredValue = -1;
+
+  return zigmo_sensor_register_endpoint(ep, endpoint_id, cmd_callbacks);
+}
+
+
 
 #define ADC_MAX 300
 #define ADC_MIN 100
 
-uint8 zigmo_sensor_read(uint8 sensor_id)
+uint8 zigmo_moisture_sensor_read(uint8 sensor_num)
 {
   HalAdcSetReference(HAL_ADC_REF_AIN7);
 
   ZIGMO_LED_PIN = 1;
   ZIGMO_SENSOR_PWR_PIN = 1;
 
-  ZIGMO_SENSOR_SEL_A_PIN = (sensor_id >> 0) & 0x01; // A
-  ZIGMO_SENSOR_SEL_B_PIN = (sensor_id >> 1) & 0x01; // B
+  ZIGMO_SENSOR_SEL_A_PIN = (sensor_num >> 0) & 0x01; // A
+  ZIGMO_SENSOR_SEL_B_PIN = (sensor_num >> 1) & 0x01; // B
 
   zigmo_util_delay(4000);
 
@@ -115,14 +119,6 @@ uint8 zigmo_sensor_read(uint8 sensor_id)
   if (adc > 100) adc = 100;
 
   adc = 100 - adc;
-
-  uint8 buf[8] = {0};
-  _itoa(ksave0, buf, 10);
-  uint8* p = &buf[0];
-  while(*p != 0) p++;
-  *p='-';
-  _itoa(adc, p + 1, 10);
-  debug_str(buf);
 
   return adc;
 }
