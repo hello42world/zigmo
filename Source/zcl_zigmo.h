@@ -66,7 +66,6 @@ extern "C"
 
 #define SAMPLEAPP_END_DEVICE_REJOIN_DELAY 10000
 
-#define ZIGMO_NUM_SENSORS 2
 /*********************************************************************
  * MACROS
  */
@@ -89,7 +88,7 @@ extern uint8 g_zigmo_battery_percentage;
 
 
 extern ZigmoSensorEndpoint g_zigmo_endpoints[ZIGMO_NUM_SENSORS];
-extern CONST zclAttrRec_t g_zigmo_sensor_attrs[][ZIGMO_NUM_SENSOR_ZCL_ATTR];
+
 /*********************************************************************
  * FUNCTIONS
  */

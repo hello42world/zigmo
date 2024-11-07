@@ -290,28 +290,6 @@ SimpleDescriptionFormat_t zclZigmo_SimpleDesc =
 };
 
 
-// Sensor array
-
-ZigmoSensorEndpoint g_zigmo_endpoints[ZIGMO_NUM_SENSORS];
-
-CONST zclAttrRec_t g_zigmo_sensor_attrs[][ZIGMO_NUM_SENSOR_ZCL_ATTR] = {
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[0].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[1].measuredValue),
-/*
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[2].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[3].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[4].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[5].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[6].measuredValue),
-  ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[7].measuredValue),
-*/
-};
-
-// Number of attrs in zigmo_sensor_attrs must == NUM_SENSORS
-STATIC_ASSERT(
-              (sizeof(g_zigmo_sensor_attrs) / sizeof(zclAttrRec_t) / ZIGMO_NUM_SENSOR_ZCL_ATTR) == ZIGMO_NUM_SENSORS,
-              num_attr_mismatch_w_sensors);
-
 /*********************************************************************
  * GLOBAL FUNCTIONS
  */

@@ -288,15 +288,10 @@ void zclZigmo_Init( byte task_id )
   // Init buttons
   zigmo_buttons_set_target_task(zclZigmo_TaskID);
 
-  // Init sensor endpoint data structures
-  for (uint8 i = 0; i < ZIGMO_NUM_SENSORS; i++)
-  {
-    zigmo_moisture_sensor_init_endpoint(
-      &g_zigmo_endpoints[i],
-      ZIGMO_FIRST_SENSOR_ENDPOINT + i,
-      g_zigmo_sensor_attrs[i],
-      &zclZigmo_CmdCallbacks);
-  }
+  // Init moisture sensors
+  zigmo_moisture_sensor_init_sensors(
+    ZIGMO_FIRST_SENSOR_ENDPOINT,
+    &zclZigmo_CmdCallbacks);
 
   // Init battery percentage metering
   bdb_RepAddAttrCfgRecordDefaultToList(ZIGMO_ENDPOINT,
@@ -395,7 +390,7 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
           uint8 status = bdb_RepChangedAttrValue(ZIGMO_FIRST_SENSOR_ENDPOINT + i,
                                                ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
                                                ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE);
-        }
+      }
     }
 
 
@@ -427,10 +422,6 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
             debug_str("In progr or on nwk");
           }
 
-          break;
-
-        case ZDO_STATE_CHANGE:
-          // UI_DeviceStateUpdated((devStates_t)(MSGpkt->hdr.status));
           break;
 
 #if defined (OTA_CLIENT) && (OTA_CLIENT == TRUE)
@@ -536,8 +527,6 @@ static void zclZigmo_ProcessCommissioningStatus(bdbCommissioningModeMsg_t *bdbCo
     break;
 #endif
   }
-
-  // UI_UpdateComissioningStatus(bdbCommissioningModeMsg);
 }
 
 /*********************************************************************
