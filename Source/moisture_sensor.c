@@ -163,17 +163,13 @@ ZStatus_t zigmo_moisture_sensor_init_sensors(
 #define ADC_MAX 300
 #define ADC_MIN 100
 
-uint8 zigmo_moisture_sensor_read(uint8 sensor_num)
+static uint8 zigmo_moisture_sensor_read(uint8 sensor_num)
 {
-  HalAdcSetReference(HAL_ADC_REF_AIN7);
-
-  ZIGMO_LED_PIN = 1;
-  ZIGMO_SENSOR_PWR_PIN = 1;
-
+  // Enable the corresponding multiplexer channel.
   ZIGMO_SENSOR_SEL_A_PIN = (sensor_num >> 0) & 0x01; // A
   ZIGMO_SENSOR_SEL_B_PIN = (sensor_num >> 1) & 0x01; // B
 
-  zigmo_util_delay(4000);
+  zigmo_util_delay_microsec(5000);
 
   int32 adc;
   int32 ksave0 = 0;
@@ -184,9 +180,6 @@ uint8 zigmo_moisture_sensor_read(uint8 sensor_num)
     ksave0 = adc;
     adc = HalAdcRead (HAL_ADC_CHN_AIN4, HAL_ADC_RESOLUTION_10);
   } while (adc != ksave0);
-
-  ZIGMO_LED_PIN = 0;
-  ZIGMO_SENSOR_PWR_PIN = 0;
 
   ZIGMO_SENSOR_SEL_A_PIN = 0;
   ZIGMO_SENSOR_SEL_B_PIN = 0;
@@ -205,4 +198,25 @@ uint8 zigmo_moisture_sensor_read(uint8 sensor_num)
   adc = 100 - adc;
 
   return adc;
+}
+
+
+void zigmo_moisture_sensors_refresh(uint8 first_endpoint_num)
+{
+  HalAdcSetReference(HAL_ADC_REF_AIN7);
+  ZIGMO_SENSOR_PWR_PIN = 1; // Power on the sensor circuit.
+
+  for (int i = 0; i < ZIGMO_NUM_SENSORS; i++)
+  {
+    uint8 moisture = zigmo_moisture_sensor_read(i);
+
+    g_zigmo_endpoints[i].measuredValue = moisture * 100;
+
+    bdb_RepChangedAttrValue(
+      first_endpoint_num + i,
+      ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
+      ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE);
+  }
+
+  ZIGMO_SENSOR_PWR_PIN = 0;
 }

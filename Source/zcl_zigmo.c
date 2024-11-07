@@ -301,6 +301,7 @@ void zclZigmo_Init( byte task_id )
 
   // Rejoin the network. Should be the last step.
   bdb_StartCommissioning(BDB_COMMISSIONING_REJOIN_EXISTING_NETWORK_ON_STARTUP);
+
 }
 
 void zclZigmo_JoinNetwork(void)
@@ -375,22 +376,11 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
     {
 
       g_zigmo_battery_percentage = zigmo_get_battery_percentage();
-      dprintf("batt: %d", g_zigmo_battery_percentage);
       uint8 status = bdb_RepChangedAttrValue(ZIGMO_ENDPOINT,
                                            ZCL_CLUSTER_ID_GEN_POWER_CFG,
                                            ATTRID_POWER_CFG_BATTERY_PERCENTAGE_REMAINING);
 
-      for (int i = 0; i < ZIGMO_NUM_SENSORS; i++)
-      {
-
-          uint8 moisture = zigmo_moisture_sensor_read(i);
-
-          g_zigmo_endpoints[i].measuredValue = moisture * 100;
-
-          uint8 status = bdb_RepChangedAttrValue(ZIGMO_FIRST_SENSOR_ENDPOINT + i,
-                                               ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
-                                               ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE);
-      }
+      zigmo_moisture_sensors_refresh(ZIGMO_FIRST_SENSOR_ENDPOINT);
     }
 
 

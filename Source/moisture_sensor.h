@@ -34,7 +34,7 @@ ZStatus_t zigmo_moisture_sensor_init_sensors(
   uint8 first_endpoint_num,
   zclGeneral_AppCallbacks_t* cmd_callbacks);
 
-extern uint8 zigmo_moisture_sensor_read(uint8 sensor_num);
+extern void zigmo_moisture_sensors_refresh(uint8 first_endpoint_num);
 
 
 #endif
