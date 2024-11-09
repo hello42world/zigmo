@@ -26,6 +26,11 @@ static bool zigmo_led_is_on(void)
 
 void zigmo_led_init(uint8 task_id)
 {
+  // Set P1_0 to GPIO
+  P1SEL &= ~(1 << 0);
+  // Set P1_0 direction to Output.
+  P1DIR |= (1 << 0);
+
   g_zigmo_led_task_id = task_id;
 }
 

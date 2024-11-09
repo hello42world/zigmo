@@ -179,10 +179,7 @@ void HalKeyInit( void )
   HalKeyConfigured = FALSE;
 
 
-  // Set P1_0 to GPIO
-  P1SEL &= ~(1 << 0);
-  // Set P1_0 direction to Output.
-  P1DIR |= (1 << 0);
+
 
   // Set P1_1 to GPIO
   P1SEL &= ~(1 << 1);
