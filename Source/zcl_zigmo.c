@@ -103,6 +103,7 @@
 
 #include "dbg.h"
 #include "button.h"
+#include "led.h"
 /*********************************************************************
  * MACROS
  */
@@ -379,8 +380,9 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
       uint8 status = bdb_RepChangedAttrValue(ZIGMO_ENDPOINT,
                                            ZCL_CLUSTER_ID_GEN_POWER_CFG,
                                            ATTRID_POWER_CFG_BATTERY_PERCENTAGE_REMAINING);
-
+      zigmo_led_on();
       zigmo_moisture_sensors_refresh(ZIGMO_FIRST_SENSOR_ENDPOINT);
+      zigmo_led_off();
     }
 
 
@@ -401,17 +403,11 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
           break;
 
         case ZIGMO_BTN_EVENT:
-          if (bdbAttributes.bdbCommissioningStatus != BDB_COMMISSIONING_IN_PROGRESS/* &&
-              bdbAttributes.bdbNodeIsOnANetwork == false*/)
+          if (bdbAttributes.bdbCommissioningStatus != BDB_COMMISSIONING_IN_PROGRESS)
           {
-            debug_str("Joining..");
+            zigmo_led_blink(2);
             zclZigmo_JoinNetwork();
           }
-          else
-          {
-            debug_str("In progr or on nwk");
-          }
-
           break;
 
 #if defined (OTA_CLIENT) && (OTA_CLIENT == TRUE)

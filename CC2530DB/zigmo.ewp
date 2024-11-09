@@ -5827,6 +5827,12 @@
             <name>$PROJ_DIR$\..\Source\hal2.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\Source\led.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\Source\led.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\Source\moisture_sensor.c</name>
         </file>
         <file>

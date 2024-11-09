@@ -7,7 +7,7 @@
 #include "bdb.h"
 #include "bdb_interface.h"
 #include "hal_adc.h"
-#include "DebugTrace.h"
+#include "dbg.h"
 
 #define ZIGMO_NUM_SENSOR_ZCL_ATTR 4
 
@@ -169,7 +169,8 @@ static uint8 zigmo_moisture_sensor_read(uint8 sensor_num)
   ZIGMO_SENSOR_SEL_A_PIN = (sensor_num >> 0) & 0x01; // A
   ZIGMO_SENSOR_SEL_B_PIN = (sensor_num >> 1) & 0x01; // B
 
-  zigmo_util_delay_microsec(5000);
+  //zigmo_util_delay_microsec(5000);
+  zigmo_util_delay(4000);
 
   int32 adc;
   int32 ksave0 = 0;
@@ -197,6 +198,7 @@ static uint8 zigmo_moisture_sensor_read(uint8 sensor_num)
 
   adc = 100 - adc;
 
+  dprintf("s%d=%d", sensor_num, adc);
   return adc;
 }
 

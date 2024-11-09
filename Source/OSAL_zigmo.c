@@ -84,6 +84,7 @@
 
 #include "zcl_zigmo.h"
 #include "button.h"
+#include "led.h"
 
 /*********************************************************************
  * GLOBAL VARIABLES
@@ -124,6 +125,7 @@ const pTaskEventHandlerFn tasksArr[] = {
   bdb_event_loop,
   zclZigmo_event_loop,
   zigmo_buttons_event_loop,
+  zigmo_led_event_loop,
 #if (defined OTA_CLIENT) && (OTA_CLIENT == TRUE)
   zclOTA_event_loop
 #endif
@@ -184,7 +186,8 @@ void osalInitTasks( void )
   zcl_Init( taskID++ );
   bdb_Init( taskID++ );
   zclZigmo_Init( taskID++ );
-  zigmo_buttons_init(taskID++);
+  zigmo_buttons_init( taskID++ );
+  zigmo_led_init( taskID++ );
 #if (defined OTA_CLIENT) && (OTA_CLIENT == TRUE)
   zclOTA_Init( taskID );
 #endif
