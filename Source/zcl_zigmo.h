@@ -66,6 +66,10 @@ extern "C"
 
 #define SAMPLEAPP_END_DEVICE_REJOIN_DELAY 10000
 
+// Battery meter pins
+#define ZIGMO_VMETER_PWR_PIN   P1_5
+
+
 /*********************************************************************
  * MACROS
  */

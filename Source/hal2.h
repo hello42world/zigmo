@@ -3,10 +3,7 @@
 
 #include "ioCC2530.h"
 
-#define ZIGMO_SENSOR_PWR_PIN   P1_1
-#define ZIGMO_SENSOR_SEL_A_PIN P1_2
-#define ZIGMO_SENSOR_SEL_B_PIN P1_3
-#define ZIGMO_VMETER_PWR_PIN   P1_5
+
 
 // hal_hey.h
 #define ZIGMO_HAL_KEY_BTN_1         0x20

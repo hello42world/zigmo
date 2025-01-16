@@ -17,7 +17,7 @@
     ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY, \
     { \
       ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE, \
-      ZCL_DATATYPE_INT16, \
+      ZCL_DATATYPE_UINT16, \
       ACCESS_CONTROL_READ | ACCESS_REPORTABLE, \
       (void *)measured_val_ptr \
     } \
@@ -26,7 +26,7 @@
     ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY, \
     { \
       ATTRID_MS_RELATIVE_HUMIDITY_MIN_MEASURED_VALUE, \
-      ZCL_DATATYPE_INT16, \
+      ZCL_DATATYPE_UINT16, \
       ACCESS_CONTROL_READ, \
       (void *)&zclZigmoHumidity_MinMeasuredValue \
     } \
@@ -35,7 +35,7 @@
     ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY, \
     { \
       ATTRID_MS_RELATIVE_HUMIDITY_MAX_MEASURED_VALUE, \
-      ZCL_DATATYPE_INT16, \
+      ZCL_DATATYPE_UINT16, \
       ACCESS_CONTROL_READ, \
       (void *)&zclZigmoHumidity_MaxMeasuredValue \
     } \
@@ -68,9 +68,9 @@ ZigmoSensorEndpoint g_zigmo_endpoints[ZIGMO_NUM_SENSORS];
 CONST zclAttrRec_t g_zigmo_sensor_attrs[][ZIGMO_NUM_SENSOR_ZCL_ATTR] = {
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[0].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[1].measuredValue),
-/*
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[2].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[3].measuredValue),
+/*
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[4].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[5].measuredValue),
   ZIGMO_DECLARE_SENSOR_ZCL_ATTRS(&g_zigmo_endpoints[6].measuredValue),
@@ -83,6 +83,9 @@ STATIC_ASSERT(
               (sizeof(g_zigmo_sensor_attrs) / sizeof(zclAttrRec_t) / ZIGMO_NUM_SENSOR_ZCL_ATTR) == ZIGMO_NUM_SENSORS,
               num_attr_mismatch_w_sensors);
 
+STATIC_ASSERT(BDBREPORTING_MAX_ANALOG_ATTR_SIZE == 4, Wrong_bdb_attr_size);
+// 500 or 5% is the min reportable change.
+uint8 moistureReportableChange[] = {0xF4, 0x01, 0x00, 0x00};
 
 static ZStatus_t zigmo_sensor_register_endpoint(
   ZigmoSensorEndpoint* ep,
@@ -106,10 +109,12 @@ static ZStatus_t zigmo_sensor_register_endpoint(
   }
 
   s = bdb_RepAddAttrCfgRecordDefaultToList(
-                                   endpoint_id,
-                                   ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
-                                   ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE,
-                                   0, 10, reportableChange);
+   endpoint_id,
+   ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
+   ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE,
+   0,   // No min report interval.
+   600, // Max inteval is every 10 min.
+   moistureReportableChange);
   return s;
 }
 
@@ -144,6 +149,35 @@ ZStatus_t zigmo_moisture_sensor_init_sensors(
   uint8 first_endpoint_num,
   zclGeneral_AppCallbacks_t* cmd_callbacks)
 {
+  //
+  // Init pins
+  //
+
+  // Sensor power pin
+  // Set P1_1 to GPIO
+  P1SEL &= ~(1 << 1);
+  // Set P1_1 direction to Output.
+  P1DIR |= (1 << 1);
+
+  // Channel select pin 0
+  // Set P1_2 to GPIO
+  P1SEL &= ~(1 << 2);
+  // Set P1_1 direction to Output.
+  P1DIR |= (1 << 2);
+
+  // Channel select pin 1
+  // Set P1_3 to GPIO
+  P1SEL &= ~(1 << 3);
+  // Set P1_3 direction to Output.
+  P1DIR |= (1 << 3);
+
+  // Sensor ADC pin
+  // Enable ADC on P0_4
+  APCFG |= (1 << 4);
+
+  //
+  // Init endpoints
+  //
   for (uint8 i = 0; i < ZIGMO_NUM_SENSORS; i++)
   {
     ZStatus_t s = zigmo_moisture_sensor_init_endpoint(
@@ -159,9 +193,14 @@ ZStatus_t zigmo_moisture_sensor_init_sensors(
   return ZSuccess;
 }
 
+// 10 bit ADC
+//#define ADC_MAX 250
+//#define ADC_MIN 110
 
-#define ADC_MAX 300
-#define ADC_MIN 100
+// 12 bit ADC
+#define ADC_MAX 1300
+#define ADC_MIN 760
+
 
 static uint8 zigmo_moisture_sensor_read(uint8 sensor_num)
 {
@@ -179,11 +218,8 @@ static uint8 zigmo_moisture_sensor_read(uint8 sensor_num)
   do
   {
     ksave0 = adc;
-    adc = HalAdcRead (HAL_ADC_CHN_AIN4, HAL_ADC_RESOLUTION_10);
+    adc = HalAdcRead (HAL_ADC_CHN_AIN4, HAL_ADC_RESOLUTION_12);
   } while (adc != ksave0);
-
-  ZIGMO_SENSOR_SEL_A_PIN = 0;
-  ZIGMO_SENSOR_SEL_B_PIN = 0;
 
   if (adc < 60) {
     return 0; // No input signal.
@@ -205,7 +241,7 @@ static uint8 zigmo_moisture_sensor_read(uint8 sensor_num)
 
 void zigmo_moisture_sensors_refresh(uint8 first_endpoint_num)
 {
-  HalAdcSetReference(HAL_ADC_REF_AIN7);
+  HalAdcSetReference(HAL_ADC_REF_125V);
   ZIGMO_SENSOR_PWR_PIN = 1; // Power on the sensor circuit.
 
   for (int i = 0; i < ZIGMO_NUM_SENSORS; i++)

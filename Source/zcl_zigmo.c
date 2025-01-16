@@ -120,7 +120,7 @@
 byte zclZigmo_TaskID;
 uint8 g_zigmo_battery_percentage;
 
-#define ZIGMO_TOGGLE_TEST_EVT   0x1000
+#define ZIGMO_UPDATE_SENSORS_EVT   0x1000
 /*********************************************************************
  * GLOBAL FUNCTIONS
  */
@@ -223,6 +223,17 @@ static zclGeneral_AppCallbacks_t zclZigmo_CmdCallbacks =
 };
 
 
+static void zigmo_init_battery_meter_pins(void)
+{
+  // Power pin
+  // Set P1_5 to GPIO
+  P1SEL &= ~(1 << 5);
+  // Set P1_5 direction to Output.
+  P1DIR |= (1 << 5);
+
+  // ADC pin P0_6
+  APCFG |= (1 << 6);
+}
 
 /*********************************************************************
  * @fn          zclZigmo_Init
@@ -283,8 +294,11 @@ void zclZigmo_Init( byte task_id )
 
   zdpExternalStateTaskID = zclZigmo_TaskID;
 
+  // Set transmission power
+  ZMacSetTransmitPower(TX_PWR_PLUS_4);
+
   // Start timer
-  osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
+  osal_start_timerEx(zclZigmo_TaskID, ZIGMO_UPDATE_SENSORS_EVT, 5000);
 
   // Init buttons
   zigmo_buttons_set_target_task(zclZigmo_TaskID);
@@ -295,6 +309,8 @@ void zclZigmo_Init( byte task_id )
     &zclZigmo_CmdCallbacks);
 
   // Init battery percentage metering
+  zigmo_init_battery_meter_pins();
+  g_zigmo_battery_percentage = zigmo_get_battery_percentage();
   bdb_RepAddAttrCfgRecordDefaultToList(ZIGMO_ENDPOINT,
                  ZCL_CLUSTER_ID_GEN_POWER_CFG,
                  ATTRID_POWER_CFG_BATTERY_PERCENTAGE_REMAINING,
@@ -302,15 +318,17 @@ void zclZigmo_Init( byte task_id )
 
   // Rejoin the network. Should be the last step.
   bdb_StartCommissioning(BDB_COMMISSIONING_REJOIN_EXISTING_NETWORK_ON_STARTUP);
-
 }
 
 void zclZigmo_JoinNetwork(void)
 {
+  zgWriteStartupOptions( ZG_STARTUP_SET, ZCD_STARTOPT_DEFAULT_NETWORK_STATE | ZCD_STARTOPT_DEFAULT_CONFIG_STATE );
+
+  // -DDEFAULT_CHANLIST=0x00000F00  // 11 - 0x0B
   // -DDEFAULT_CHANLIST=0x00008000  // 15 - 0x0F
   // -DDEFAULT_CHANLIST=0x00100000  // 20 - 0x14
   // -DDEFAULT_CHANLIST=0x02000000  // 25 - 0x19
-  bdb_setChannelAttribute(true, 0x02108000);
+  bdb_setChannelAttribute(true, 0x02108F00);
   bdb_setChannelAttribute(false, 0);
   bdb_StartCommissioning(BDB_COMMISSIONING_MODE_NWK_STEERING);
 }
@@ -340,10 +358,12 @@ uint8 zigmo_get_battery_percentage(void)
 
   ZIGMO_VMETER_PWR_PIN = 0;
 
-  // 320 - full; 150 - empty
-  adc -= 150;
+  static const int32 adc_max = 400;
+  static const int32 adc_min = 190;
+
+  adc -= adc_min;
   if (adc < 0) adc = 0;
-  adc = adc * 200 / (320 - 150);
+  adc = adc * 200 / (adc_max - adc_min);
   if (adc > 200) adc = 200;
 
   return adc;
@@ -364,30 +384,31 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
 
   (void)task_id;  // Intentionally unreferenced parameter
 
-
-  //Send toggle every 5s
-  if (events & ZIGMO_TOGGLE_TEST_EVT)
+  if (events & ZIGMO_UPDATE_SENSORS_EVT)
   {
-    osal_start_timerEx(zclZigmo_TaskID, ZIGMO_TOGGLE_TEST_EVT, 5000);
+    //osal_start_timerEx(zclZigmo_TaskID, ZIGMO_UPDATE_SENSORS_EVT, (uint32)120 * 1000);
+    osal_start_timerEx(zclZigmo_TaskID, ZIGMO_UPDATE_SENSORS_EVT, (uint32)5 * 1000);
 
     // magic
     HalAdcRead (HAL_ADC_CHN_AIN4, HAL_ADC_RESOLUTION_10);
+    //zigmo_moisture_sensors_refresh(ZIGMO_FIRST_SENSOR_ENDPOINT);
+
 
     if (bdbAttributes.bdbNodeIsOnANetwork == TRUE)
     {
-
       g_zigmo_battery_percentage = zigmo_get_battery_percentage();
-      uint8 status = bdb_RepChangedAttrValue(ZIGMO_ENDPOINT,
-                                           ZCL_CLUSTER_ID_GEN_POWER_CFG,
-                                           ATTRID_POWER_CFG_BATTERY_PERCENTAGE_REMAINING);
+      bdb_RepChangedAttrValue(
+        ZIGMO_ENDPOINT,
+        ZCL_CLUSTER_ID_GEN_POWER_CFG,
+        ATTRID_POWER_CFG_BATTERY_PERCENTAGE_REMAINING);
+
       zigmo_led_on();
       zigmo_moisture_sensors_refresh(ZIGMO_FIRST_SENSOR_ENDPOINT);
       zigmo_led_off();
     }
 
-
     // return unprocessed events
-    return (events ^ ZIGMO_TOGGLE_TEST_EVT);
+    return (events ^ ZIGMO_UPDATE_SENSORS_EVT);
   }
 
 

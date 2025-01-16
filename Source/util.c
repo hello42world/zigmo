@@ -23,6 +23,5 @@ void zigmo_util_delay_microsec(uint16 microSecs) {
   }
 }
 
-#if BDBREPORTING_MAX_ANALOG_ATTR_SIZE == 4
-  uint8 reportableChange[] = {0x01, 0x00, 0x00, 0x00};
-#endif
+STATIC_ASSERT(BDBREPORTING_MAX_ANALOG_ATTR_SIZE == 4, Wrong_bdb_attr_size);
+uint8 reportableChange[] = {0x01, 0x00, 0x00, 0x00};

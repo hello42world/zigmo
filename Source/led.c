@@ -42,7 +42,6 @@ uint16 zigmo_led_event_loop(uint8 task_id, uint16 events)
     if (zigmo_led_is_on())
     {
       zigmo_led_off();
-      dprintf("L1=%d", ZIGMO_LED_PIN);
       g_zigmo_led.num_blinks--;
       if (g_zigmo_led.num_blinks > 0)
       {
@@ -52,7 +51,6 @@ uint16 zigmo_led_event_loop(uint8 task_id, uint16 events)
     else
     {
       zigmo_led_on();
-      dprintf("L2=%d", ZIGMO_LED_PIN);
       zigmo_led_start_timer();
     }
 
