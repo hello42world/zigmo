@@ -104,6 +104,10 @@
 #include "dbg.h"
 #include "button.h"
 #include "led.h"
+
+STATIC_ASSERT(NWK_MAX_BINDING_ENTRIES == 5, we_have_5_endpoints_so_need_5_entries);
+
+
 /*********************************************************************
  * MACROS
  */
@@ -386,13 +390,11 @@ uint16 zclZigmo_event_loop( uint8 task_id, uint16 events )
 
   if (events & ZIGMO_UPDATE_SENSORS_EVT)
   {
-    //osal_start_timerEx(zclZigmo_TaskID, ZIGMO_UPDATE_SENSORS_EVT, (uint32)120 * 1000);
-    osal_start_timerEx(zclZigmo_TaskID, ZIGMO_UPDATE_SENSORS_EVT, (uint32)5 * 1000);
+    // Update every 5 minutes.
+    osal_start_timerEx(zclZigmo_TaskID, ZIGMO_UPDATE_SENSORS_EVT, (uint32)5 * 60 * 1000);
 
-    // magic
-    HalAdcRead (HAL_ADC_CHN_AIN4, HAL_ADC_RESOLUTION_10);
-    //zigmo_moisture_sensors_refresh(ZIGMO_FIRST_SENSOR_ENDPOINT);
-
+    // Magic. Somehow UART freezes if we don't periodically read ADC.
+    // HalAdcRead (HAL_ADC_CHN_AIN4, HAL_ADC_RESOLUTION_10);
 
     if (bdbAttributes.bdbNodeIsOnANetwork == TRUE)
     {

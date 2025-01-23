@@ -202,13 +202,12 @@ ZStatus_t zigmo_moisture_sensor_init_sensors(
 #define ADC_MIN 760
 
 
-static uint8 zigmo_moisture_sensor_read(uint8 sensor_num)
+static int16 zigmo_moisture_sensor_read(uint8 sensor_num)
 {
   // Enable the corresponding multiplexer channel.
   ZIGMO_SENSOR_SEL_A_PIN = (sensor_num >> 0) & 0x01; // A
   ZIGMO_SENSOR_SEL_B_PIN = (sensor_num >> 1) & 0x01; // B
 
-  //zigmo_util_delay_microsec(5000);
   zigmo_util_delay(4000);
 
   int32 adc;
@@ -225,17 +224,12 @@ static uint8 zigmo_moisture_sensor_read(uint8 sensor_num)
     return 0; // No input signal.
   }
 
-  adc -= ADC_MIN;
-  if (adc < 0) adc = 0;
+  if (adc < ADC_MIN) adc = ADC_MIN;
+  if (adc > ADC_MAX) adc = ADC_MAX;
 
-  adc = adc * 100 / (ADC_MAX - ADC_MIN);
+  adc = (ADC_MAX - adc) * 100 * 100  / (ADC_MAX - ADC_MIN);
 
-  if (adc > 100) adc = 100;
-
-  adc = 100 - adc;
-
-  dprintf("s%d=%d", sensor_num, adc);
-  return adc;
+  return (int16)adc;
 }
 
 
@@ -246,15 +240,19 @@ void zigmo_moisture_sensors_refresh(uint8 first_endpoint_num)
 
   for (int i = 0; i < ZIGMO_NUM_SENSORS; i++)
   {
-    uint8 moisture = zigmo_moisture_sensor_read(i);
-
-    g_zigmo_endpoints[i].measuredValue = moisture * 100;
+    g_zigmo_endpoints[i].measuredValue = zigmo_moisture_sensor_read(i);
 
     bdb_RepChangedAttrValue(
       first_endpoint_num + i,
       ZCL_CLUSTER_ID_MS_RELATIVE_HUMIDITY,
       ATTRID_MS_RELATIVE_HUMIDITY_MEASURED_VALUE);
   }
-
   ZIGMO_SENSOR_PWR_PIN = 0;
+/*
+  dprintf("%d %d %d %d",
+          g_zigmo_endpoints[0].measuredValue,
+          g_zigmo_endpoints[1].measuredValue,
+          g_zigmo_endpoints[2].measuredValue,
+          g_zigmo_endpoints[3].measuredValue);
+*/
 }
