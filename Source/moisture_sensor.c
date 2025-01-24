@@ -140,7 +140,7 @@ static ZStatus_t zigmo_moisture_sensor_init_endpoint(
 
 
   // Init measured value
-  ep->measuredValue = -1;
+  ep->measuredValue = 0;
 
   return zigmo_sensor_register_endpoint(ep, endpoint_id, cmd_callbacks);
 }
